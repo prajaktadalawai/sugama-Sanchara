@@ -1,0 +1,12 @@
+node_modules/
+.env
+.env.local
+dist/
+build/
+*.db
+*.csv
+*.docx
+__pycache__/
+.idea/
+.vscode/
+.DS_Store
