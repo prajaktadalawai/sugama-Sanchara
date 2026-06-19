@@ -245,7 +245,6 @@ def build_root_cause_report(df: pd.DataFrame) -> pd.DataFrame:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def compute_eps(
-    hotspot_summary: pd.DataFrame,
     anomaly_df:      pd.DataFrame,
     root_cause_df:   pd.DataFrame,
     jh_capacity:     pd.DataFrame,
@@ -429,7 +428,7 @@ def run_intelligence_pipeline():
 
     print("\n[Step 7] Enforcement Priority Score (with forecast)...")
     eps_df = compute_eps(
-        hotspot_summary, anomaly_df, root_cause_df,
+        anomaly_df, root_cause_df,
         jh_capacity, forecast_df, df          # forecast + df now passed in
     )
 

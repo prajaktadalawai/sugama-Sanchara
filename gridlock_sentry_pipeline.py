@@ -145,8 +145,8 @@ def run_pipeline(input_path: str, nrows: int = None) -> pd.DataFrame:
 
     # STEP 3 — road context from address text. CSV source: location, junction_name
     road_attrs = [
-        infer_road_attributes(row["location"], row["junction_name"])
-        for _, row in df[["location", "junction_name"]].iterrows()
+        infer_road_attributes(loc, junc)
+        for loc, junc in zip(df["location"], df["junction_name"])
     ]
     df["road_type"] = [r[0] for r in road_attrs]
     df["lanes"] = [r[1] for r in road_attrs]

@@ -9,11 +9,13 @@ Endpoints:
   GET /api/eps/critical                    — CRITICAL + HIGH junctions only
   GET /api/hotspots                        — DBSCAN cluster centroids
   GET /api/anomalies                       — flagged junction-hour spikes
-  GET /api/forecast/{station}/{day}        — hourly forecast for a zone
+  GET /api/forecast/stations/list          — available stations
+  GET /api/forecast/{station}              — hourly forecast for a zone
   GET /api/junctions                       — junction-hour capacity loss table
   GET /api/zones                           — police station zone summaries
   GET /api/root-causes                     — root cause classification
   GET /api/heatmap-data                    — lat/lon + score for map rendering
+  GET /api/yellow-zones                    — low density high impact zones
 
 Run:
   pip install fastapi uvicorn
@@ -25,6 +27,7 @@ Run:
 import sqlite3
 import os
 from typing import Optional
+import numpy as np
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Query
@@ -87,14 +90,13 @@ def query(sql: str, params: tuple = ()) -> list[dict]:
 @app.get("/api/stats")
 def get_stats():
     """Overall dataset and system summary — shown on dashboard header."""
-    total_viol  = query("SELECT SUM(violation_count) AS n FROM zone_summaries")[0]["n"] or 0
+    total_viol  = query("SELECT SUM(violation_count) AS n FROM eps_rankings")[0]["n"] or 0
     stations    = query("SELECT COUNT(DISTINCT police_station) AS n FROM zone_summaries")[0]["n"]
     eps_rows    = query("SELECT COUNT(*) AS n FROM eps_rankings")[0]["n"]
     critical    = query("SELECT COUNT(*) AS n FROM eps_rankings WHERE action_tier='CRITICAL'")[0]["n"]
     high        = query("SELECT COUNT(*) AS n FROM eps_rankings WHERE action_tier='HIGH'")[0]["n"]
     clusters    = query("SELECT COUNT(*) AS n FROM hotspot_clusters")[0]["n"]
     anomalies   = query("SELECT COUNT(*) AS n FROM anomaly_detections WHERE is_anomaly=1")[0]["n"]
-    months      = query("SELECT COUNT(DISTINCT strftime('%Y-%m', 0, 'unixepoch')) AS n FROM temporal_forecast")
     return {
         "total_violations_approved": total_viol,
         "total_junctions_monitored": eps_rows,
@@ -167,6 +169,13 @@ def get_anomalies(only_flagged: bool = Query(default=True)):
     return rows
 
 
+@app.get("/api/forecast/stations/list")
+def list_stations():
+    """All available police station names for the forecast dropdown."""
+    rows = query("SELECT DISTINCT police_station FROM temporal_forecast ORDER BY police_station")
+    return [r["police_station"] for r in rows]
+
+
 @app.get("/api/forecast/{station}")
 def get_forecast(station: str, day: Optional[int] = Query(default=None)):
     """
@@ -186,13 +195,6 @@ def get_forecast(station: str, day: Optional[int] = Query(default=None)):
     if not rows:
         raise HTTPException(status_code=404, detail=f"Station '{station}' not found.")
     return rows
-
-
-@app.get("/api/forecast/stations/list")
-def list_stations():
-    """All available police station names for the forecast dropdown."""
-    rows = query("SELECT DISTINCT police_station FROM temporal_forecast ORDER BY police_station")
-    return [r["police_station"] for r in rows]
 
 
 @app.get("/api/junctions")
@@ -286,13 +288,31 @@ def get_yellow_zones():
         SELECT e.junction_name, e.eps, e.mean_impact_score, e.violation_count,
                e.lat, e.lon, e.root_cause
         FROM eps_rankings e
-        WHERE e.mean_impact_score > 0.25
-          AND e.violation_count < 50
-        ORDER BY e.mean_impact_score DESC
-        LIMIT 50
         """
     )
-    return {"description": "Low density, HIGH impact — enforcement blind spots", "zones": rows}
+    if not rows:
+        return {"description": "Low density, HIGH impact — enforcement blind spots", "zones": []}
+    
+    # Calculate percentiles dynamically
+    impacts = [r["mean_impact_score"] for r in rows if r["mean_impact_score"] is not None]
+    counts = [r["violation_count"] for r in rows if r["violation_count"] is not None]
+    
+    impact_cutoff = np.percentile(impacts, 75) if impacts else 0.25
+    count_cutoff = np.percentile(counts, 50) if counts else 50.0
+    
+    # Filter the rows
+    yellow_zones = [
+        r for r in rows
+        if r["mean_impact_score"] is not None and r["mean_impact_score"] > impact_cutoff
+        and r["violation_count"] is not None and r["violation_count"] < count_cutoff
+    ]
+    
+    # Sort by mean_impact_score descending and limit to 50
+    yellow_zones.sort(key=lambda x: x["mean_impact_score"], reverse=True)
+    return {
+        "description": f"Low density (violation count < {count_cutoff:.1f}), HIGH impact (mean impact score > {impact_cutoff:.4f}) — enforcement blind spots",
+        "zones": yellow_zones[:50]
+    }
 
 
 # ─────────────────────────────────────────────────────────────────────────────
