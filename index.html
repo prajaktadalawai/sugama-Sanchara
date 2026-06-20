@@ -572,9 +572,14 @@
                             People parking illegally near shops and metro stations causes massive traffic jams. Right now, police only react when a jam happens, and they don't know exactly which parked cars are causing the worst bottlenecks.
                         </p>
                         
-                        <h3 style="font-size: 1rem; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 600;" data-i18n="psTitle2">How Sugama Sanchara Helps</h3>
+                        <h3 style="font-size: 1rem; margin-top: 1rem; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 600;" data-i18n="psTitle2">How Sugama Sanchara Helps</h3>
                         <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;" data-i18n="psDesc2">
                             We use AI to automatically spot illegal parking and calculate exactly how much it's slowing down traffic. Instead of guessing, police can use this dashboard to send towing trucks to the exact "Hidden Violations" that are hurting the city the most.
+                        </p>
+                        
+                        <h3 style="font-size: 1rem; margin-top: 1rem; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 600;">Mathematical Rigour & Generalization</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
+                            To prove our AI works in the real world, we evaluated it strictly. We trained our spatial hotspot and anomaly models on historical data from <strong>January to April</strong>, and then tested it blindly on <strong>May's data</strong>. The evaluation proved our predictions highly correlate with unseen future congestion—meaning our model genuinely generalizes to solve tomorrow's traffic jams.
                         </p>
                     </div>
                 </div>
@@ -656,6 +661,9 @@
                     <div class="report-section">
                         <div class="report-title" data-i18n="reportImpact">Traffic Impact (Score)</div>
                         <div class="report-value" id="reportEps">-</div>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 6px; line-height: 1.4;">
+                            <strong>What this means:</strong> The Enforcement Priority Score (EPS) calculates the exact disruption caused (0-100). A higher score means this parking violation is actively choking a major carriageway, blocking transit, or creating severe delays. <strong>Why it matters:</strong> Sending a tow truck here instantly clears a major city bottleneck, whereas ticketing a low-score zone does little to help traffic.
+                        </p>
                     </div>
                     
                     <div class="report-section">
