@@ -298,11 +298,14 @@ def metric2_temporal_accuracy(train_df, test_df):
     for station, grp in merged.groupby("police_station"):
         if len(grp) < 5:
             continue
+        # Add variance guard before computing pearsonr
+        if grp["density_norm_pred"].std() < 1e-6 or grp["density_norm_actual"].std() < 1e-6:
+            continue  # skip constant stations
         r, _ = pearsonr(grp["density_norm_pred"], grp["density_norm_actual"])
         station_corrs.append(r)
 
-    mean_r = np.mean(station_corrs)
-    median_r = np.median(station_corrs)
+    mean_r = np.mean(station_corrs) if station_corrs else 0.0
+    median_r = np.median(station_corrs) if station_corrs else 0.0
     print(f"  Stations evaluated: {len(station_corrs)}")
     print(f"  Per-station Pearson r — mean: {mean_r:.3f}  median: {median_r:.3f}")
     print(f"  Stations with r > 0.7: {sum(r > 0.7 for r in station_corrs)} / {len(station_corrs)}")

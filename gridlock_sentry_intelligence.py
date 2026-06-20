@@ -44,14 +44,16 @@ from gridlock_sentry_pipeline import (
 
 def detect_hotspots(df: pd.DataFrame,
                     eps_km: float = 0.3,
-                    min_samples: int = 10) -> pd.DataFrame:
+                    min_samples: int = 3) -> pd.DataFrame:
     """
     Cluster violation records by lat/lon using DBSCAN.
     eps_km      : neighbourhood radius in kilometres
     min_samples : minimum violations to form a hotspot cluster
     Returns df with 'hotspot_cluster' column (-1 = noise).
     """
-    coords  = df[["latitude", "longitude"]].values
+    # Cluster on junction centroids, not raw records
+    junction_centroids = df[df["junction_flag"]==1].groupby("junction_name")[["latitude", "longitude"]].mean().reset_index()
+    coords  = junction_centroids[["latitude", "longitude"]].values
     eps_rad = eps_km / 6371.0   # convert km to radians for haversine
 
     labels = DBSCAN(
@@ -59,12 +61,18 @@ def detect_hotspots(df: pd.DataFrame,
         algorithm="ball_tree", metric="haversine", n_jobs=-1,
     ).fit_predict(np.radians(coords))
 
+    junction_centroids["hotspot_cluster"] = labels
+    
+    # Merge back to raw records via junction_name
     df = df.copy()
-    df["hotspot_cluster"] = labels
+    df = df.merge(junction_centroids[["junction_name", "hotspot_cluster"]], on="junction_name", how="left")
+    # Ensure unmatched (noise) junctions get -1
+    df["hotspot_cluster"] = df["hotspot_cluster"].fillna(-1).astype(int)
+
     n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
     n_noise    = (labels == -1).sum()
-    print(f"[Hotspot] {n_clusters} clusters | {n_noise:,} noise | "
-          f"{len(df)-n_noise:,} clustered violations")
+    print(f"[Hotspot] {n_clusters} clusters | {n_noise:,} noise junctions | "
+          f"{len(junction_centroids)-n_noise:,} clustered junctions")
     return df
 
 
@@ -188,7 +196,7 @@ ROOT_CAUSE_RULES = [
     ("RUSH_HOUR_DEMAND_SPIKE", {
         "desc": "40%+ of violations occur in peak hours (8-10 AM / 5-8 PM) — "
                 "demand for stopping/loading exceeds road capacity during commute.",
-        "condition": lambda r: r["rush_hour_pct"] >= 0.4,
+        "condition": lambda r: r["rush_hour_pct"] >= 0.4 and r["violation_count"] >= 15,
     }),
     ("ENFORCEMENT_BLIND_SPOT", {
         "desc": "High violation count but low congestion impact score — "
@@ -273,6 +281,8 @@ def compute_eps(
         "junction_name", "violation_count", "mean_impact_score",
         "rush_hour_pct", "lat", "lon", "root_cause"
     ]].copy()
+    
+    eps_df = eps_df[eps_df["violation_count"] >= 10]
 
     # Map junction -> dominant police_station (for forecast lookup)
     junc_station = (
@@ -313,15 +323,15 @@ def compute_eps(
     eps_df = eps_df.merge(anomaly_max, on="junction_name", how="left")
     eps_df["max_spike_ratio"] = eps_df["max_spike_ratio"].fillna(1.0)
 
-    # Root cause severity weight (bounded 0.5-1.0, consistent scale)
+    # Root cause severity weight (bounded 0.0-1.0, consistent scale)
     rc_weight = {
         "STRUCTURAL_DESIGN":      1.0,
-        "RUSH_HOUR_DEMAND_SPIKE": 0.9,
-        "NO_PARKING_ALTERNATIVE": 0.8,
-        "ENFORCEMENT_BLIND_SPOT": 0.7,
-        "GENERAL_VIOLATION_ZONE": 0.5,
+        "RUSH_HOUR_DEMAND_SPIKE": 0.8,
+        "NO_PARKING_ALTERNATIVE": 0.6,
+        "ENFORCEMENT_BLIND_SPOT": 0.4,
+        "GENERAL_VIOLATION_ZONE": 0.0,
     }
-    eps_df["root_cause_weight"] = eps_df["root_cause"].map(rc_weight).fillna(0.5)
+    eps_df["root_cause_weight"] = eps_df["root_cause"].map(rc_weight).fillna(0.0)
 
     def norm(s):
         mn, mx = s.min(), s.max()
@@ -339,7 +349,7 @@ def compute_eps(
         + eps_df["current_forecast_intensity"] * 0.20
         + eps_df["root_cause_weight"]          * 0.10
     )
-    eps_df["eps"] = (eps_df["eps_raw"] * 100).clip(0, 100).round(1)
+    eps_df["eps"] = (norm(eps_df["eps_raw"]) * 100).clip(0, 100).round(1)
 
     # Percentile-based tiers — CRITICAL/HIGH always populated
     p50 = eps_df["eps"].quantile(0.50)
@@ -406,7 +416,7 @@ def run_intelligence_pipeline():
     df = run_pipeline(INPUT_CSV)
 
     print("\n[Step 2] Hotspot Detection...")
-    df = detect_hotspots(df, eps_km=0.3, min_samples=8)
+    df = detect_hotspots(df, eps_km=0.3, min_samples=3)
     hotspot_summary = build_hotspot_summary(df)
 
     print("\n[Step 3] Junction-Hour Capacity Loss...")

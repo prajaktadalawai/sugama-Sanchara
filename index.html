@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gridlock Sentry — Proactive Parking Intelligence</title>
+    <title>Sugama Sanchara</title>
     
-    <!-- Google Fonts -->
+    <!-- Modern Inter Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Leaflet.js CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
@@ -21,1362 +21,993 @@
 
     <!-- Leaflet.js -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <!-- Leaflet Heatmap Plugin -->
     <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 
     <style>
         :root {
-            --bg-base: #0a0c10;
-            --bg-surface: #121620;
-            --bg-surface-hover: #1b2030;
-            --border-color: #21283b;
-            --text-primary: #f3f4f6;
-            --text-secondary: #9ca3af;
-            --text-muted: #6b7280;
+            /* Light Mode Variables */
+            --bg-body: #f4f6f8;
+            --bg-sidebar: #ffffff;
+            --bg-card: rgba(255, 255, 255, 0.95);
+            --text-main: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --primary-accent: #f97316; /* Orange */
+            --hover-bg: #f3f4f6;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             
-            --color-critical: #ff3b30;
-            --color-high: #ff9500;
-            --color-medium: #34c759;
-            --color-low: #007aff;
-            --color-accent: #00f0ff;
-            --color-yellow-zone: #ffd60a;
+            --critical: #ef4444;
+            --high: #f97316;
+            --medium: #f59e0b;
+            --low: #10b981;
+        }
 
-            --glow-critical: 0 0 12px rgba(255, 59, 48, 0.4);
-            --glow-high: 0 0 12px rgba(255, 149, 0, 0.4);
-            --glow-accent: 0 0 12px rgba(0, 240, 255, 0.4);
-            
-            --font-display: 'Orbitron', sans-serif;
-            --font-body: 'Plus Jakarta Sans', sans-serif;
+        [data-theme="dark"] {
+            /* Dark Mode Variables */
+            --bg-body: #111827;
+            --bg-sidebar: #1f2937;
+            --bg-card: rgba(31, 41, 55, 0.95);
+            --text-main: #f9fafb;
+            --text-secondary: #9ca3af;
+            --border-color: #374151;
+            --hover-bg: #374151;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         body {
-            background-color: var(--bg-base);
-            color: var(--text-primary);
-            font-family: var(--font-body);
-            height: 100vh;
+            background-color: var(--bg-body);
+            color: var(--text-main);
             overflow: hidden;
+            height: 100vh;
+        }
+
+        /* ─── Video Login Page ─────────────────────── */
+        #login-view {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 10000;
             display: flex;
             flex-direction: column;
+            color: #333;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+            background: #fff;
         }
 
-        /* Scrollbar styling */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--bg-base);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--text-muted);
+        #login-view.hidden {
+            opacity: 0;
+            visibility: hidden;
         }
 
-        /* Top Header */
-        header {
-            background: linear-gradient(180deg, rgba(18, 22, 32, 0.95) 0%, rgba(10, 12, 16, 0.9) 100%);
-            border-bottom: 1px solid var(--border-color);
-            padding: 1rem 1.5rem;
+        .video-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+
+        /* Specific panel styles */
+        .panel-close-btn {
+            height: 32px;
+            width: 32px;
+            box-shadow: none;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: transparent;
+            color: #ffffff;
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .panel-close-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .login-nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            z-index: 1000;
-            backdrop-filter: blur(10px);
+            padding: 2rem 4rem;
+            position: relative;
+            z-index: 1;
         }
 
-        .logo-section {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .logo-section h1 {
-            font-family: var(--font-display);
-            font-size: 1.5rem;
-            font-weight: 800;
-            letter-spacing: 1.5px;
-            background: linear-gradient(90deg, #00f0ff 0%, #007aff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .logo-container {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-        }
-
-        .badge-proactive {
-            font-family: var(--font-display);
-            font-size: 0.7rem;
-            font-weight: 600;
-            background: rgba(0, 240, 255, 0.1);
-            color: var(--color-accent);
-            border: 1px solid rgba(0, 240, 255, 0.3);
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            text-transform: uppercase;
-            box-shadow: var(--glow-accent);
-        }
-
-        /* Stats Grid */
-        .stats-grid {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .stat-card {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 0.5rem 1rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            min-width: 110px;
-            transition: all 0.2s ease;
-        }
-
-        .stat-card:hover {
-            border-color: var(--color-accent);
-            transform: translateY(-2px);
-        }
-
-        .stat-label {
-            font-size: 0.65rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .stat-value {
-            font-family: var(--font-display);
-            font-size: 1.2rem;
+            font-size: 1.25rem;
             font-weight: 700;
-            margin-top: 0.15rem;
+            color: #111;
         }
 
-        /* Main Workspace Layout */
-        main {
+        .logo-icon {
+            width: 28px; height: 28px;
+            background: #f97316;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .login-content {
             flex: 1;
             display: flex;
-            height: calc(100vh - 77px);
-            overflow: hidden;
-            background-color: var(--bg-base);
+            align-items: center;
+            padding-left: 10%;
+            position: relative;
+            z-index: 1;
         }
 
-        /* Sidebar Panels */
-        .panel {
-            background-color: var(--bg-surface);
+        .login-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 20px;
+            padding: 3rem;
+            width: 400px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-card h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #111;
+        }
+
+        .login-card p {
+            color: #555;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .btn-google {
+            width: 100%;
+            background: white;
+            color: #333;
+            border: 1px solid #ddd;
+            padding: 0.8rem;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+            margin-top: 1rem;
+        }
+
+        .btn-google:hover {
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* ─── Dashboard Layout ─────────────────────── */
+        #dashboard-view {
+            display: none;
+            height: 100vh;
+            width: 100vw;
+            flex-direction: row;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-sidebar);
             border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            z-index: 1000;
+            box-shadow: var(--shadow);
         }
 
-        .panel-left {
-            width: 380px;
-            min-width: 380px;
-            z-index: 10;
-        }
-
-        .panel-right {
-            width: 320px;
-            min-width: 320px;
-            border-left: 1px solid var(--border-color);
-            border-right: none;
-        }
-
-        .panel-header {
-            padding: 1rem 1.25rem;
+        .sidebar-header {
+            padding: 1.5rem;
             border-bottom: 1px solid var(--border-color);
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            background: rgba(18, 22, 32, 0.5);
+            gap: 0.75rem;
+            font-size: 1.1rem;
+            font-weight: 700;
         }
 
-        .panel-title {
-            font-family: var(--font-display);
-            font-size: 0.95rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--text-primary);
-        }
-
-        .panel-title i {
-            color: var(--color-accent);
-        }
-
-        /* Content Areas */
-        .panel-content {
+        .sidebar-nav {
             flex: 1;
-            overflow-y: auto;
-            padding: 1rem;
-        }
-
-        /* Search & Filter */
-        .filter-bar {
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem 1rem;
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
+            overflow-y: auto;
         }
 
-        .search-wrapper {
-            position: relative;
-            width: 100%;
-        }
-
-        .search-input {
-            width: 100%;
-            background-color: var(--bg-base);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 0.5rem 0.75rem 0.5rem 2rem;
-            color: var(--text-primary);
-            font-family: var(--font-body);
-            font-size: 0.85rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .search-input:focus {
-            border-color: var(--color-accent);
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 0.65rem;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 14px;
-            height: 14px;
-            color: var(--text-muted);
-        }
-
-        .tier-tabs {
+        .nav-item {
             display: flex;
-            gap: 0.25rem;
-            background: var(--bg-base);
-            padding: 0.2rem;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-        }
-
-        .tier-tab {
-            flex: 1;
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 0.65rem;
-            font-weight: 600;
-            padding: 0.35rem;
-            border-radius: 4px;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 500;
             cursor: pointer;
-            text-transform: uppercase;
-            transition: all 0.2s;
+            transition: background 0.2s;
         }
 
-        .tier-tab.active {
-            background-color: var(--bg-surface-hover);
-            color: var(--text-primary);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        .nav-item:hover, .nav-item.active {
+            background: var(--hover-bg);
+            color: var(--primary-accent);
         }
 
-        /* Dispatch / Junction Item List */
+        /* Profile Section */
+        .profile-section {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-accent);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .profile-role {
+            font-size: 0.8rem;
+            color: var(--critical);
+            cursor: pointer;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        /* Main Content (Map + Overlays) */
+        .main-content {
+            flex: 1;
+            position: relative;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #map {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 1;
+        }
+
+        /* Floating Overlays */
+        .overlay-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            bottom: 20px;
+            width: 400px;
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            display: none; /* Hidden by default */
+        }
+
+        .overlay-panel.active {
+            display: flex;
+        }
+
+        .panel-header {
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-content {
+            padding: 1.25rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* Controls */
+        .map-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            background: var(--bg-card);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            height: 44px;
+            padding: 0 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            font-weight: 600;
+            gap: 6px;
+        }
+
+        .icon-btn.circle {
+            width: 44px;
+            padding: 0;
+            border-radius: 50%;
+        }
+
+        .icon-btn:hover {
+            background: var(--hover-bg);
+        }
+
+        /* Specific panel styles */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .stat-card {
+            background: var(--hover-bg);
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-accent);
+            margin-top: 0.5rem;
+        }
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
         .dispatch-list {
             display: flex;
             flex-direction: column;
             gap: 0.75rem;
         }
-
         .dispatch-card {
-            background-color: rgba(26, 32, 46, 0.4);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 0.85rem;
+            background: var(--hover-bg);
+            padding: 1rem;
+            border-radius: 12px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            position: relative;
-            overflow: hidden;
+            border: 1px solid transparent;
         }
-
-        .dispatch-card::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 3px;
-            background: transparent;
-        }
-
-        .dispatch-card.tier-critical::before { background-color: var(--color-critical); }
-        .dispatch-card.tier-high::before { background-color: var(--color-high); }
-        .dispatch-card.tier-medium::before { background-color: var(--color-medium); }
-        .dispatch-card.tier-low::before { background-color: var(--color-low); }
-
         .dispatch-card:hover {
-            background-color: var(--bg-surface-hover);
-            border-color: var(--text-muted);
-            transform: translateX(2px);
+            border-color: var(--primary-accent);
         }
+        .dispatch-card.critical { border-left: 4px solid var(--critical); }
+        .dispatch-card.high { border-left: 4px solid var(--high); }
+        .dispatch-card.medium { border-left: 4px solid var(--medium); }
 
-        .dispatch-card.selected {
-            background-color: rgba(0, 240, 255, 0.05);
-            border-color: var(--color-accent);
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.1);
+        .report-section {
+            background: var(--hover-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
         }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 0.5rem;
-            gap: 0.5rem;
-        }
-
-        .card-title {
+        .report-title {
             font-size: 0.85rem;
-            font-weight: 600;
-            line-height: 1.2;
-            color: var(--text-primary);
-            word-break: break-word;
-        }
-
-        .eps-badge {
-            font-family: var(--font-display);
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 0.15rem 0.4rem;
-            border-radius: 4px;
-            white-space: nowrap;
-        }
-
-        .eps-badge.critical { background: rgba(255, 59, 48, 0.15); color: var(--color-critical); border: 1px solid rgba(255, 59, 48, 0.3); box-shadow: var(--glow-critical); }
-        .eps-badge.high { background: rgba(255, 149, 0, 0.15); color: var(--color-high); border: 1px solid rgba(255, 149, 0, 0.3); box-shadow: var(--glow-high); }
-        .eps-badge.medium { background: rgba(52, 199, 89, 0.15); color: var(--color-medium); border: 1px solid rgba(52, 199, 89, 0.3); }
-        .eps-badge.low { background: rgba(0, 122, 255, 0.15); color: var(--color-low); border: 1px solid rgba(0, 122, 255, 0.3); }
-
-        .card-meta {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.5rem;
-            font-size: 0.75rem;
             color: var(--text-secondary);
-            margin-bottom: 0.5rem;
-        }
-
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .meta-item i {
-            width: 12px;
-            height: 12px;
-            color: var(--text-muted);
-        }
-
-        .card-tag {
-            font-size: 0.65rem;
-            font-weight: 500;
-            background: var(--bg-base);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            padding: 0.2rem 0.4rem;
-            border-radius: 4px;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-            max-width: 100%;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            overflow: hidden;
-        }
-
-        /* Map Container */
-        .map-container {
-            flex: 1;
-            position: relative;
-            height: 100%;
-        }
-
-        #map {
-            width: 100%;
-            height: 100%;
-            background-color: var(--bg-base);
-        }
-
-        /* Map Layer Controls */
-        .map-overlay-controls {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            z-index: 1000;
-            background: rgba(18, 22, 32, 0.9);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 0.75rem;
-            backdrop-filter: blur(8px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .overlay-title {
-            font-family: var(--font-display);
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 0.35rem;
             margin-bottom: 0.25rem;
-            letter-spacing: 0.5px;
-        }
-
-        .layer-btn {
-            background: var(--bg-base);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            padding: 0.4rem 0.75rem;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-align: left;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.2s;
-        }
-
-        .layer-btn:hover {
-            color: var(--text-primary);
-            border-color: var(--text-muted);
-        }
-
-        .layer-btn.active {
-            background: rgba(0, 240, 255, 0.1);
-            color: var(--color-accent);
-            border-color: var(--color-accent);
-            box-shadow: var(--glow-accent);
-        }
-
-        /* Live Alerts Control Panel */
-        .alert-item {
-            background: rgba(255, 59, 48, 0.05);
-            border: 1px solid rgba(255, 59, 48, 0.2);
-            border-radius: 6px;
-            padding: 0.75rem;
-            margin-bottom: 0.75rem;
-            position: relative;
-        }
-
-        .alert-item::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 3px;
-            background: var(--color-critical);
-        }
-
-        .alert-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--color-critical);
-            margin-bottom: 0.35rem;
-        }
-
-        .alert-time {
-            font-family: var(--font-display);
-            font-size: 0.65rem;
-            color: var(--text-secondary);
-        }
-
-        .alert-body {
-            font-size: 0.8rem;
-            color: var(--text-primary);
-            line-height: 1.3;
-            margin-bottom: 0.5rem;
-        }
-
-        .btn-dispatch {
-            width: 100%;
-            background: var(--color-critical);
-            border: none;
-            border-radius: 4px;
-            color: white;
-            font-family: var(--font-display);
-            font-size: 0.7rem;
-            font-weight: 700;
-            padding: 0.35rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.25rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            transition: opacity 0.2s;
         }
-
-        .btn-dispatch:hover {
-            opacity: 0.9;
-        }
-
-        /* Blind Spot / Yellow Zone list */
-        .blind-spot-item {
-            background: rgba(255, 214, 10, 0.05);
-            border: 1px solid rgba(255, 214, 10, 0.2);
-            border-radius: 6px;
-            padding: 0.65rem 0.75rem;
-            margin-bottom: 0.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .blind-spot-item:hover {
-            background: rgba(255, 214, 10, 0.15);
-        }
-
-        .blind-spot-name {
-            font-size: 0.8rem;
+        .report-value {
+            font-size: 1.2rem;
             font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 180px;
+            color: var(--text-main);
         }
 
-        .blind-spot-val {
-            font-family: var(--font-display);
-            font-size: 0.75rem;
-            color: var(--color-yellow-zone);
-            font-weight: 700;
-        }
-
-        /* Bottom Insights Panel */
-        .bottom-shelf {
-            height: 250px;
-            background: var(--bg-surface);
-            border-top: 1px solid var(--border-color);
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 1.5rem;
-            padding: 1rem 1.5rem;
-            z-index: 1000;
-        }
-
-        .shelf-card {
-            display: flex;
-            flex-direction: column;
-            min-height: 0; /* allows proper internal scrolling */
-        }
-
-        .shelf-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 0.35rem;
-        }
-
-        .shelf-title {
-            font-family: var(--font-display);
-            font-size: 0.85rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-secondary);
-        }
-
-        .select-station {
-            background: var(--bg-base);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            font-size: 0.75rem;
-            border-radius: 4px;
-            padding: 0.15rem 0.5rem;
-            outline: none;
-        }
-
-        .shelf-body {
-            flex: 1;
-            min-height: 0;
-            position: relative;
-        }
-
-        /* Detail Card Grid */
-        .detail-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
-            height: 100%;
-        }
-
-        .detail-subcard {
-            background: var(--bg-base);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 0.5rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .detail-lbl {
-            font-size: 0.65rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-        }
-
-        .detail-val {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-top: 0.15rem;
-            word-break: break-all;
-        }
-
-        .detail-val.large {
-            font-family: var(--font-display);
-            font-size: 1.3rem;
-            color: var(--color-accent);
-        }
-
-        /* Loading / Error States */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: var(--bg-base);
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            transition: opacity 0.3s ease;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(0, 240, 255, 0.1);
-            border-top: 3px solid var(--color-accent);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            box-shadow: var(--glow-accent);
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* custom marker style */
-        .custom-div-icon {
-            background: none;
-            border: none;
-        }
-        
-        .pulse-marker {
-            background: var(--color-accent);
-            border: 2px solid white;
-            border-radius: 50%;
-            height: 12px;
-            width: 12px;
-            box-shadow: var(--glow-accent);
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(0, 240, 255, 0.7);
-            }
-            70% {
-                box-shadow: 0 0 0 10px rgba(0, 240, 255, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(0, 240, 255, 0);
-            }
-        }
     </style>
 </head>
-<body>
+<body data-theme="light">
 
-    <!-- Loading Screen -->
-    <div id="loading" class="loading-overlay">
-        <div class="spinner"></div>
-        <p style="font-family: var(--font-display); font-size: 0.9rem; letter-spacing: 1px; color: var(--color-accent);">INITIALISING SENTRY CORE LAYER...</p>
+    <!-- VIDEO LOGIN LANDING PAGE -->
+    <div id="login-view">
+        <video class="video-bg" autoplay loop muted playsinline>
+            <source src="design.mp4" type="video/mp4">
+        </video>
+
+        <nav class="login-nav">
+            <div class="logo-container" style="color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
+                <div class="logo-icon">
+                    <i data-lucide="shield"></i>
+                </div>
+                Sugama Sanchara <span style="font-weight:400; font-size:0.9em; margin-left:6px; color:#ddd;">(ಸುಗಮ ಸಂಚಾರ)</span>
+            </div>
+            
+            <!-- Language toggle on Login screen too -->
+            <button class="icon-btn" onclick="toggleLang()" title="Translate">
+                <i data-lucide="languages" style="width:16px;"></i> <span id="loginLangText">ಕನ್ನಡ</span>
+            </button>
+        </nav>
+        
+        <div style="position: absolute; bottom: 20px; left: 0; width: 100%; text-align: center; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8); font-weight: 600; font-size: 0.95rem; z-index: 5;" data-i18n="subtitle">
+            Sugama Sanchara: Making proactive parking intelligence easy for Bengaluru.
+        </div>
+        
+        <div class="login-content">
+            <div class="login-card">
+                <h2 data-i18n="welcome">Welcome Back</h2>
+                <p data-i18n="signInDesc">Sign in to your Dashboard</p>
+                
+                <button class="btn-google" onclick="doLogin()">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" width="20">
+                    <span data-i18n="signInGoogle">Sign in with Google</span>
+                </button>
+            </div>
+        </div>
     </div>
 
-    <!-- Top Header -->
-    <header>
-        <div class="logo-section">
-            <h1><i data-lucide="shield-alert" style="width: 24px; height: 24px; color: var(--color-accent);"></i> GRIDLOCK SENTRY</h1>
-            <span class="badge-proactive">Proactive Dispatch v1.0</span>
-        </div>
-        <div class="stats-grid" id="statsGrid">
-            <!-- Stats loaded via API -->
-            <div class="stat-card">
-                <span class="stat-label">Total Checked</span>
-                <span class="stat-value" id="statTotal">-</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-label">Junctions</span>
-                <span class="stat-value" id="statJunctions">-</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-label">Critical</span>
-                <span class="stat-value" style="color: var(--color-critical);" id="statCritical">-</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-label">High Priority</span>
-                <span class="stat-value" style="color: var(--color-high);" id="statHigh">-</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-label">Hotspots</span>
-                <span class="stat-value" id="statHotspots">-</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-label">Active Spikes</span>
-                <span class="stat-value" style="color: var(--color-yellow-zone);" id="statAnomalies">-</span>
-            </div>
-        </div>
-    </header>
+    <!-- MAIN DASHBOARD -->
+    <div id="dashboard-view">
 
-    <!-- Workspace -->
-    <main>
-        <!-- Left Panel: Ranked Enforcement List -->
-        <div class="panel panel-left">
-            <div class="panel-header">
-                <span class="panel-title"><i data-lucide="trending-up"></i> Priority Rankings (EPS)</span>
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon"><i data-lucide="shield"></i></div>
+                Sugama Sanchara
             </div>
-            <div class="filter-bar">
-                <div class="search-wrapper">
-                    <i data-lucide="search" class="search-icon"></i>
-                    <input type="text" id="searchInput" class="search-input" placeholder="Search junction or road type...">
+            
+            <div class="sidebar-nav">
+                <div class="nav-item active" onclick="switchPanel('overview')">
+                    <i data-lucide="layout-dashboard"></i> <span data-i18n="navOverview">Overview</span>
                 </div>
-                <div class="tier-tabs">
-                    <button class="tier-tab active" onclick="setTierFilter('ALL')">All</button>
-                    <button class="tier-tab" style="color: var(--color-critical);" onclick="setTierFilter('CRITICAL')">Critical</button>
-                    <button class="tier-tab" style="color: var(--color-high);" onclick="setTierFilter('HIGH')">High</button>
-                    <button class="tier-tab" style="color: var(--color-medium);" onclick="setTierFilter('MEDIUM')">Medium</button>
-                    <button class="tier-tab" style="color: var(--color-low);" onclick="setTierFilter('LOW')">Low</button>
+                <div class="nav-item" onclick="switchPanel('dispatch')">
+                    <i data-lucide="alert-circle"></i> <span data-i18n="navHotspots">Live Hotspots</span>
+                </div>
+                <div class="nav-item" onclick="switchPanel('forecast')">
+                    <i data-lucide="clock"></i> <span data-i18n="navForecast">Future Predictions</span>
+                </div>
+                <div class="nav-item" onclick="switchPanel('blindspots')">
+                    <i data-lucide="eye-off"></i> <span data-i18n="navBlindspots">Hidden Violations</span>
+                </div>
+                <div class="nav-item" onclick="switchPanel('causes')">
+                    <i data-lucide="help-circle"></i> <span data-i18n="navCauses">Why is it blocked?</span>
                 </div>
             </div>
-            <div class="panel-content" id="dispatchListContainer">
-                <div class="dispatch-list" id="dispatchList">
-                    <!-- Dynamic cards go here -->
+
+            <!-- Profile Section -->
+            <div class="profile-section">
+                <div class="avatar">U</div>
+                <div class="profile-info">
+                    <span class="profile-name" data-i18n="adminUser">Admin User</span>
+                    <span class="profile-role" onclick="doLogout()">
+                        <i data-lucide="log-out" style="width: 12px; height: 12px; display: inline; vertical-align: middle;"></i> <span data-i18n="logout">Logout</span>
+                    </span>
                 </div>
             </div>
         </div>
 
-        <!-- Center Panel: Map Layer -->
-        <div class="map-container">
+        <!-- Main Content (Map) -->
+        <div class="main-content">
             <div id="map"></div>
-            <!-- Map Layers Controller Overlay -->
-            <div class="map-overlay-controls">
-                <span class="overlay-title">Visualisation Layers</span>
-                <button class="layer-btn active" id="btnLayerImpact" onclick="toggleMapLayer('impact')">
-                    <i data-lucide="gauge"></i> Congestion Capacity Loss
-                </button>
-                <button class="layer-btn" id="btnLayerDensity" onclick="toggleMapLayer('density')">
-                    <i data-lucide="layers"></i> Violation Density Heatmap
-                </button>
-                <button class="layer-btn" id="btnLayerHotspots" onclick="toggleMapLayer('hotspots')">
-                    <i data-lucide="crosshair"></i> DBSCAN Cluster Hotspots
-                </button>
-                <button class="layer-btn" id="btnLayerYellow" onclick="toggleMapLayer('yellow')">
-                    <i data-lucide="eye-off"></i> Enforcement Blind Spots
-                </button>
-            </div>
-        </div>
 
-        <!-- Right Panel: Live Alerts & Blind Spots -->
-        <div class="panel panel-right">
-            <!-- Anomaly Spike Alert Box -->
-            <div style="flex: 1.2; display: flex; flex-direction: column; overflow: hidden; border-bottom: 1px solid var(--border-color);">
-                <div class="panel-header" style="background: rgba(255, 59, 48, 0.03);">
-                    <span class="panel-title" style="color: var(--color-critical);"><i data-lucide="bell-ring" style="color: var(--color-critical);"></i> Real-Time Alerts</span>
-                </div>
-                <div class="panel-content" id="alertsList" style="overflow-y: auto;">
-                    <!-- Dynamic real-time anomalies -->
-                </div>
+            <!-- Top Right Controls -->
+            <div class="map-controls">
+                <button class="icon-btn" onclick="toggleLang()" title="Translate">
+                    <i data-lucide="languages" style="width:16px;"></i> <span id="dashLangText">ಕನ್ನಡ</span>
+                </button>
+                <button class="icon-btn circle" onclick="toggleTheme()" title="Toggle Day/Night Mode" id="themeToggleBtn">
+                    <i data-lucide="moon"></i>
+                </button>
             </div>
 
-            <!-- Enforcement Blind Spots -->
-            <div style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
-                <div class="panel-header" style="background: rgba(255, 214, 10, 0.03);">
-                    <span class="panel-title" style="color: var(--color-yellow-zone);"><i data-lucide="compass" style="color: var(--color-yellow-zone);"></i> Blind Spots (Yellow)</span>
+            <!-- Overlays -->
+            
+            <!-- 1. Overview Panel -->
+            <div id="panel-overview" class="overlay-panel active">
+                <div class="panel-header">
+                    <span data-i18n="navOverview">Overview</span>
+                    <button class="icon-btn circle panel-close-btn" onclick="closeAllPanels()"><i data-lucide="x" style="width:14px;"></i></button>
                 </div>
-                <div class="panel-content" id="blindSpotsList" style="overflow-y: auto;">
-                    <!-- Dynamic blind spots -->
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Bottom Shelf: Deep Analytics -->
-    <div class="bottom-shelf">
-        <!-- Section 1: Selected Junction Insights -->
-        <div class="shelf-card">
-            <div class="shelf-header">
-                <span class="shelf-title" id="detailsTitle">Junction Insights</span>
-                <span id="selectedJunctionCoords" style="font-size: 0.65rem; color: var(--text-muted); font-family: var(--font-display);"></span>
-            </div>
-            <div class="shelf-body">
-                <div class="detail-grid">
-                    <div class="detail-subcard">
-                        <span class="detail-lbl">Ranked priority score</span>
-                        <span class="detail-val large" id="detailEPS">-</span>
+                <div class="panel-content">
+                    <div class="stat-grid">
+                        <div class="stat-card">
+                            <div class="stat-label" data-i18n="statChecked" style="color: var(--primary-accent); font-weight:600;">Vehicles Scanned</div>
+                            <div class="stat-value" id="statTotal">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label" data-i18n="statJunctions">Monitored Junctions</div>
+                            <div class="stat-value" id="statJunctions">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label" data-i18n="statCritical">Towing Priority Zones</div>
+                            <div class="stat-value" id="statCritical" style="color: var(--critical);">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label" data-i18n="statAnomalies">Illegal Parking Alerts</div>
+                            <div class="stat-value" id="statAnomalies" style="color: var(--high);">-</div>
+                        </div>
                     </div>
-                    <div class="detail-subcard">
-                        <span class="detail-lbl">Congestion Root Cause</span>
-                        <span class="detail-val" id="detailRootCause" style="color: var(--color-high); font-weight: 700;">-</span>
-                    </div>
-                    <div class="detail-subcard">
-                        <span class="detail-lbl">Violations Registered</span>
-                        <span class="detail-val" id="detailViolations">-</span>
-                    </div>
-                    <div class="detail-subcard">
-                        <span class="detail-lbl">Average Traffic Capacity Loss</span>
-                        <span class="detail-val" id="detailCapacity">-</span>
+                    
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                        <h3 style="font-size: 1rem; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 600;" data-i18n="psTitle1">The Problem We Face</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1rem;" data-i18n="psDesc1">
+                            People parking illegally near shops and metro stations causes massive traffic jams. Right now, police only react when a jam happens, and they don't know exactly which parked cars are causing the worst bottlenecks.
+                        </p>
+                        
+                        <h3 style="font-size: 1rem; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 600;" data-i18n="psTitle2">How Sugama Sanchara Helps</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;" data-i18n="psDesc2">
+                            We use AI to automatically spot illegal parking and calculate exactly how much it's slowing down traffic. Instead of guessing, police can use this dashboard to send towing trucks to the exact "Hidden Violations" that are hurting the city the most.
+                        </p>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Section 2: Proactive Temporal Forecast -->
-        <div class="shelf-card">
-            <div class="shelf-header">
-                <span class="shelf-title"><i data-lucide="clock" style="width: 14px; height: 14px; display: inline; vertical-align: middle; margin-right: 0.25rem;"></i> Temporal Risk Profile</span>
-                <select id="stationSelect" class="select-station" onchange="loadStationForecast(this.value)">
-                    <!-- Options populated dynamically -->
-                </select>
+            <!-- 2. Dispatch Panel -->
+            <div id="panel-dispatch" class="overlay-panel">
+                <div class="panel-header">
+                    <span data-i18n="navHotspots">Live Hotspots</span>
+                    <div style="display:flex; gap:8px;">
+                        <i data-lucide="refresh-cw" style="width: 16px; cursor: pointer; margin-top:6px;" onclick="loadRankings()"></i>
+                        <button class="icon-btn circle panel-close-btn" onclick="closeAllPanels()"><i data-lucide="x" style="width:14px;"></i></button>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.85rem;" data-i18n="hotspotDesc">Areas needing immediate help right now.</p>
+                    <div class="dispatch-list" id="dispatchList">
+                        <!-- Loaded dynamically -->
+                    </div>
+                </div>
             </div>
-            <div class="shelf-body">
-                <canvas id="forecastChart"></canvas>
-            </div>
-        </div>
 
-        <!-- Section 3: Root Cause Attribution Share -->
-        <div class="shelf-card">
-            <div class="shelf-header">
-                <span class="shelf-title"><i data-lucide="pie-chart" style="width: 14px; height: 14px; display: inline; vertical-align: middle; margin-right: 0.25rem;"></i> Congestion Root Causes</span>
+            <!-- 3. Forecast Panel -->
+            <div id="panel-forecast" class="overlay-panel">
+                <div class="panel-header">
+                    <span data-i18n="navForecast">Future Predictions</span>
+                    <div style="display:flex; gap:8px;">
+                        <select id="stationSelect" style="padding: 4px; border-radius: 4px; border: 1px solid var(--border-color);" onchange="loadStationForecast(this.value)"></select>
+                        <button class="icon-btn circle panel-close-btn" onclick="closeAllPanels()"><i data-lucide="x" style="width:14px;"></i></button>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.85rem;" data-i18n="forecastDesc">What to expect later today based on past data.</p>
+                    <canvas id="forecastChart" style="max-height: 250px;"></canvas>
+                    <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 1rem;">Predicted violation intensity by hour for each police station zone. Peak bars indicate when and where to pre-position enforcement officers.</p>
+                </div>
             </div>
-            <div class="shelf-body" style="display: flex; justify-content: center; align-items: center;">
-                <canvas id="causesChart" style="max-height: 180px; max-width: 180px;"></canvas>
+
+            <!-- 4. Blind Spots Panel -->
+            <div id="panel-blindspots" class="overlay-panel">
+                <div class="panel-header">
+                    <span data-i18n="navBlindspots">Hidden Violations</span>
+                    <button class="icon-btn circle panel-close-btn" onclick="closeAllPanels()"><i data-lucide="x" style="width:14px;"></i></button>
+                </div>
+                <div class="panel-content">
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.85rem;" data-i18n="blindspotDesc">Areas that are completely jammed, but barely anyone is getting ticketed. Cops need to check here.</p>
+                    <div class="dispatch-list" id="blindSpotsList">
+                        <!-- Loaded dynamically -->
+                    </div>
+                </div>
             </div>
+
+            <!-- 5. Root Causes Panel -->
+            <div id="panel-causes" class="overlay-panel">
+                <div class="panel-header">
+                    <span data-i18n="navCauses">Why is it blocked?</span>
+                    <button class="icon-btn circle panel-close-btn" onclick="closeAllPanels()"><i data-lucide="x" style="width:14px;"></i></button>
+                </div>
+                <div class="panel-content">
+                    <canvas id="causesChart" style="max-height: 250px;"></canvas>
+                    <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 1rem;">Systemic reason why each junction keeps generating violations. Structural Design and No Parking Alternative zones require policy intervention, not just patrol.</p>
+                </div>
+            </div>
+
+            <!-- 6. NEW: Junction Report Panel -->
+            <div id="panel-report" class="overlay-panel">
+                <div class="panel-header">
+                    <span data-i18n="reportTitle">Junction Report</span>
+                    <button class="icon-btn circle" style="height:28px; width:28px;" onclick="switchPanel('overview')"><i data-lucide="x" style="width:14px;"></i></button>
+                </div>
+                <div class="panel-content">
+                    <h2 id="reportJunctionName" style="margin-bottom: 1rem;">-</h2>
+                    
+                    <div class="report-section">
+                        <div class="report-title" data-i18n="reportCause">Why is it congested?</div>
+                        <div class="report-value" id="reportRootCause" style="color: var(--critical);">-</div>
+                    </div>
+
+                    <div class="report-section">
+                        <div class="report-title" data-i18n="reportImpact">Traffic Impact (Score)</div>
+                        <div class="report-value" id="reportEps">-</div>
+                    </div>
+                    
+                    <div class="report-section">
+                        <div class="report-title" data-i18n="reportAction">Action Needed</div>
+                        <div class="report-value" id="reportAction" style="color: var(--high);">-</div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <!-- UI Logic & Integrations -->
     <script>
+        // MULTILINGUAL DICTIONARY
+        const dict = {
+            en: {
+                subtitle: "Sugama Sanchara: Making proactive parking intelligence easy for Bengaluru.",
+                welcome: "Welcome Back",
+                signInDesc: "Sign in to your Dashboard",
+                signInGoogle: "Sign in with Google",
+                navOverview: "Overview",
+                navHotspots: "Live Hotspots",
+                navForecast: "Future Predictions",
+                navBlindspots: "Hidden Violations",
+                navCauses: "Why is it blocked?",
+                adminUser: "Admin User",
+                logout: "Logout",
+                statChecked: "Vehicles Scanned",
+                statJunctions: "Monitored Junctions",
+                statCritical: "Towing Priority Zones",
+                statAnomalies: "Illegal Parking Alerts",
+                psTitle1: "The Problem We Face",
+                psDesc1: "People parking illegally near shops and metro stations causes massive traffic jams. Right now, police only react when a jam happens, and they don't know exactly which parked cars are causing the worst bottlenecks.",
+                psTitle2: "How Sugama Sanchara Helps",
+                psDesc2: "We use AI to automatically spot illegal parking and calculate exactly how much it's slowing down traffic. Instead of guessing, police can use this dashboard to send towing trucks to the exact 'Hidden Violations' that are hurting the city the most.",
+                hotspotDesc: "Areas needing immediate help right now.",
+                forecastDesc: "What to expect later today based on past data.",
+                blindspotDesc: "Areas that are completely jammed, but barely anyone is getting ticketed. Cops need to check here.",
+                reportTitle: "Junction Report",
+                reportCause: "Why is it congested?",
+                reportImpact: "Traffic Impact (Score)",
+                reportAction: "Action Needed"
+            },
+            kn: {
+                subtitle: "ಸುಗಮ ಸಂಚಾರ: ಬೆಂಗಳೂರಿಗೆ ವಾಹನ ನಿಲುಗಡೆ ನಿರ್ವಹಣೆಯನ್ನು ಸುಲಭಗೊಳಿಸಲಾಗುತ್ತಿದೆ.",
+                welcome: "ಮತ್ತೆ ಸ್ವಾಗತ",
+                signInDesc: "ನಿಮ್ಮ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್‌ಗೆ ಲಾಗಿನ್ ಆಗಿ",
+                signInGoogle: "ಗೂಗಲ್ ಮೂಲಕ ಸೈನ್ ಇನ್ ಮಾಡಿ",
+                navOverview: "ಸ್ಥೂಲನೋಟ",
+                navHotspots: "ಲೈವ್ ಹಾಟ್‌ಸ್ಪಾಟ್‌ಗಳು",
+                navForecast: "ಭವಿಷ್ಯದ ಮುನ್ಸೂಚನೆ",
+                navBlindspots: "ಗುಪ್ತ ಉಲ್ಲಂಘನೆಗಳು",
+                navCauses: "ಏಕೆ ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ?",
+                adminUser: "ನಿರ್ವಾಹಕ (Admin)",
+                logout: "ಲಾಗ್ ಔಟ್",
+                statChecked: "ಒಟ್ಟು ಪರಿಶೀಲಿಸಲಾಗಿದೆ",
+                statJunctions: "ವೃತ್ತಗಳು",
+                statCritical: "ಕ್ಲಿಷ್ಟಕರ ಪ್ರದೇಶಗಳು",
+                statAnomalies: "ಸಕ್ರಿಯ ಎಚ್ಚರಿಕೆಗಳು",
+                psTitle1: "ನಮ್ಮ ಸಮಸ್ಯೆ",
+                psDesc1: "ಅಂಗಡಿಗಳು ಮತ್ತು ಮೆಟ್ರೋ ನಿಲ್ದಾಣಗಳ ಬಳಿ ಅಕ್ರಮವಾಗಿ ಪಾರ್ಕಿಂಗ್ ಮಾಡುವುದರಿಂದ ಭಾರೀ ಟ್ರಾಫಿಕ್ ಜಾಮ್ ಆಗುತ್ತದೆ. ಪ್ರಸ್ತುತ, ಜಾಮ್ ಆದಾಗ ಮಾತ್ರ ಪೊಲೀಸರು ಪ್ರತಿಕ್ರಿಯಿಸುತ್ತಾರೆ, ಮತ್ತು ಯಾವ ಕಾರುಗಳು ಹೆಚ್ಚು ತೊಂದರೆ ನೀಡುತ್ತಿವೆ ಎಂಬುದು ಅವರಿಗೆ ನಿಖರವಾಗಿ ತಿಳಿದಿಲ್ಲ.",
+                psTitle2: "ಸುಗಮ ಸಂಚಾರ ಹೇಗೆ ಸಹಾಯ ಮಾಡುತ್ತದೆ",
+                psDesc2: "ಅಕ್ರಮ ಪಾರ್ಕಿಂಗ್ ಅನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಗುರುತಿಸಲು ಮತ್ತು ಅದು ಟ್ರಾಫಿಕ್ ಅನ್ನು ಎಷ್ಟು ನಿಧಾನಗೊಳಿಸುತ್ತಿದೆ ಎಂಬುದನ್ನು ಲೆಕ್ಕಹಾಕಲು ನಾವು AI ಅನ್ನು ಬಳಸುತ್ತೇವೆ. ಊಹಿಸುವ ಬದಲು, ಪೊಲೀಸರು ಈ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ಬಳಸಿ ನಗರಕ್ಕೆ ಹೆಚ್ಚು ತೊಂದರೆ ನೀಡುತ್ತಿರುವ ನಿಖರವಾದ 'ಗುಪ್ತ ಉಲ್ಲಂಘನೆ'ಗಳಿಗೆ ಟೋಯಿಂಗ್ ಟ್ರಕ್‌ಗಳನ್ನು ಕಳುಹಿಸಬಹುದು.",
+                hotspotDesc: "ಈಗ ತಕ್ಷಣ ಸಹಾಯದ ಅಗತ್ಯವಿರುವ ಪ್ರದೇಶಗಳು.",
+                forecastDesc: "ಹಿಂದಿನ ಡೇಟಾದ ಆಧಾರದ ಮೇಲೆ ಇಂದು ನಂತರ ಏನನ್ನು ನಿರೀಕ್ಷಿಸಬಹುದು.",
+                blindspotDesc: "ಸಂಪೂರ್ಣವಾಗಿ ಜಾಮ್ ಆಗಿರುವ ಪ್ರದೇಶಗಳು, ಆದರೆ ಯಾರಿಗೂ ದಂಡ ವಿಧಿಸುತ್ತಿಲ್ಲ. ಪೊಲೀಸರು ಇಲ್ಲಿ ಪರಿಶೀಲಿಸಬೇಕು.",
+                reportTitle: "ಜಂಕ್ಷನ್ ವರದಿ",
+                reportCause: "ಏಕೆ ದಟ್ಟಣೆ ಇದೆ?",
+                reportImpact: "ಟ್ರಾಫಿಕ್ ಪರಿಣಾಮ (ಸ್ಕೋರ್)",
+                reportAction: "ತೆಗೆದುಕೊಳ್ಳಬೇಕಾದ ಕ್ರಮ"
+            }
+        };
+
+        let currentLang = 'en';
+
+        function toggleLang() {
+            currentLang = currentLang === 'en' ? 'kn' : 'en';
+            
+            // Update toggle buttons text
+            document.getElementById('loginLangText').innerText = currentLang === 'en' ? 'ಕನ್ನಡ' : 'English';
+            document.getElementById('dashLangText').innerText = currentLang === 'en' ? 'ಕನ್ನಡ' : 'English';
+            
+            // Apply translations
+            const elements = document.querySelectorAll('[data-i18n]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (dict[currentLang][key]) {
+                    el.innerText = dict[currentLang][key];
+                }
+            });
+        }
+
         const API_BASE = "http://localhost:8000";
         let map;
         let heatmapLayer = null;
         let markersGroup = null;
         
         let allJunctions = [];
-        let filteredJunctions = [];
-        let selectedJunction = null;
-        let currentTierFilter = 'ALL';
-        let currentLayer = 'impact'; // impact, density, hotspots, yellow
-
-        // Chart instances
         let forecastChart = null;
         let causesChart = null;
 
-        // Leaflet styling parameters
         const mapCenter = [12.9716, 77.5946]; // Bangalore center
 
-        // Initialization
-        window.addEventListener('DOMContentLoaded', async () => {
-            lucide.createIcons();
-            initMap();
+        // Login Logic
+        function doLogin() {
+            // Hide login immediately to ensure dashboard renders properly for Leaflet
+            document.getElementById('login-view').style.display = 'none';
+            document.getElementById('dashboard-view').style.display = 'flex';
             
-            try {
-                await Promise.all([
-                    loadStats(),
-                    loadRankings(),
-                    loadStationList(),
-                    loadRootCauses(),
-                    loadAlerts(),
-                    loadBlindSpots()
-                ]);
+            // Force browser to paint before init
+            requestAnimationFrame(() => {
+                initMap();
+                loadData();
                 
-                // Hide loading overlay
-                document.getElementById('loading').style.opacity = 0;
-                setTimeout(() => {
-                    document.getElementById('loading').style.display = 'none';
-                }, 300);
-
-                // Auto-select first station forecast and first junction
-                if (allJunctions.length > 0) {
-                    selectJunctionCard(allJunctions[0].junction_name);
-                }
-            } catch (err) {
-                console.error("API Connection failed:", err);
-                alert("Failed to connect to Gridlock Sentry API. Please check if gridlock_sentry_api.py is running!");
-            }
-        });
-
-        // Initialize Dark Leaflet Map
-        function initMap() {
-            map = L.map('map', {
-                zoomControl: false,
-                attributionControl: false
-            }).setView(mapCenter, 12);
-
-            // Custom CartoDB Dark Matter tile layer
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                maxZoom: 20
-            }).addTo(map);
-
-            L.control.zoom({ position: 'topleft' }).addTo(map);
-
-            markersGroup = L.layerGroup().addTo(map);
+                // CRITICAL FIX: Multiple triggers to absolutely guarantee Leaflet wakes up
+                map.invalidateSize();
+                setTimeout(() => { map.invalidateSize(); }, 100);
+                setTimeout(() => { map.invalidateSize(); }, 500);
+                setTimeout(() => { map.invalidateSize(); }, 1500);
+            });
         }
 
-        // Stats loader
+        function doLogout() {
+            document.getElementById('dashboard-view').style.display = 'none';
+            document.getElementById('login-view').style.display = 'flex';
+            setTimeout(() => {
+                document.getElementById('login-view').classList.remove('hidden');
+            }, 50);
+        }
+
+        // Theme Toggle (Day/Night)
+        let isDarkMode = false;
+        let lightTileLayer, darkTileLayer;
+
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            document.body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+            document.getElementById('themeToggleBtn').innerHTML = `<i data-lucide="${isDarkMode ? 'sun' : 'moon'}"></i>`;
+            lucide.createIcons();
+
+            if (map) {
+                if (isDarkMode) {
+                    map.removeLayer(lightTileLayer);
+                    darkTileLayer.addTo(map);
+                } else {
+                    map.removeLayer(darkTileLayer);
+                    lightTileLayer.addTo(map);
+                }
+            }
+        }
+
+        // Panel Switching
+        function closeAllPanels() {
+            document.querySelectorAll('.overlay-panel').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        }
+
+        function switchPanel(panelId) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            if(event && event.currentTarget && event.currentTarget.classList) {
+                event.currentTarget.classList.add('active');
+            }
+
+            document.querySelectorAll('.overlay-panel').forEach(el => el.classList.remove('active'));
+            document.getElementById(`panel-${panelId}`).classList.add('active');
+            
+            if(panelId === 'dispatch' || panelId === 'overview') renderHeatmap('impact');
+            if(panelId === 'blindspots') renderYellowZoneMarkers();
+        }
+
+        function openReport(junctionName, rootCause, eps, action) {
+            switchPanel('report');
+            document.getElementById('reportJunctionName').innerText = junctionName;
+            document.getElementById('reportRootCause').innerText = rootCause ? rootCause.replace(/_/g, ' ') : "Unknown Blockage";
+            document.getElementById('reportEps').innerText = typeof eps === 'number' ? eps.toFixed(1) : eps;
+            document.getElementById('reportAction').innerText = action;
+        }
+
+        // Map Initialization
+        function initMap() {
+            if(map) return; // Prevent re-init
+            map = L.map('map', { zoomControl: false, attributionControl: false }).setView(mapCenter, 12);
+            L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+            lightTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 });
+            darkTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
+
+            lightTileLayer.addTo(map);
+            markersGroup = L.layerGroup().addTo(map);
+
+            lucide.createIcons();
+        }
+
+        // Data Loading
+        async function loadData() {
+            try {
+                loadStats();
+                loadRankings();
+                loadStationList();
+                loadBlindSpots();
+                loadRootCauses();
+            } catch (err) {
+                console.error("API Error", err);
+            }
+        }
+
         async function loadStats() {
             const res = await fetch(`${API_BASE}/api/stats`);
             const data = await res.json();
-            
             document.getElementById('statTotal').innerText = data.total_violations_approved.toLocaleString();
             document.getElementById('statJunctions').innerText = data.total_junctions_monitored;
             document.getElementById('statCritical').innerText = data.critical_zones;
-            document.getElementById('statHigh').innerText = data.high_zones;
-            document.getElementById('statHotspots').innerText = data.hotspot_clusters;
             document.getElementById('statAnomalies').innerText = data.anomalies_detected;
         }
 
-        // Load EPS Rankings
         async function loadRankings() {
-            const res = await fetch(`${API_BASE}/api/eps?limit=150`);
+            const res = await fetch(`${API_BASE}/api/eps?limit=20`);
             allJunctions = await res.json();
-            applyFilters();
-            renderHeatmap('impact'); // load impact heatmap by default
-        }
-
-        // Set Tier Tab Filter
-        function setTierFilter(tier) {
-            currentTierFilter = tier;
-            document.querySelectorAll('.tier-tab').forEach(tab => {
-                tab.classList.remove('active');
-                if (tab.innerText.toUpperCase() === tier.toUpperCase() || (tier === 'ALL' && tab.innerText.toUpperCase() === 'ALL')) {
-                    tab.classList.add('active');
-                }
-            });
-            applyFilters();
-        }
-
-        // Search inputs
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            applyFilters();
-        });
-
-        // Filter and Search logic
-        function applyFilters() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            filteredJunctions = allJunctions.filter(j => {
-                const matchesSearch = j.junction_name.toLowerCase().includes(query) || (j.root_cause && j.root_cause.toLowerCase().includes(query));
-                const matchesTier = currentTierFilter === 'ALL' || j.action_tier === currentTierFilter;
-                return matchesSearch && matchesTier;
-            });
-            renderDispatchList();
-        }
-
-        // Render ranked dispatch card items
-        function renderDispatchList() {
+            
             const list = document.getElementById('dispatchList');
             list.innerHTML = '';
             
-            filteredJunctions.forEach(j => {
-                const card = document.createElement('div');
-                card.className = `dispatch-card tier-${j.action_tier.toLowerCase()}`;
-                if (selectedJunction && selectedJunction.junction_name === j.junction_name) {
-                    card.classList.add('selected');
-                }
-                
-                card.onclick = () => selectJunctionCard(j.junction_name);
-
-                card.innerHTML = `
-                    <div class="card-header">
-                        <span class="card-title">${j.junction_name}</span>
-                        <span class="eps-badge ${j.action_tier.toLowerCase()}">${j.eps.toFixed(1)} EPS</span>
-                    </div>
-                    <div class="card-meta">
-                        <div class="meta-item"><i data-lucide="file-text"></i> ${j.violation_count} Violations</div>
-                        <div class="meta-item"><i data-lucide="gauge"></i> Capacity: ${(j.mean_impact_score * 100).toFixed(0)}% loss</div>
-                    </div>
-                    <div class="card-tag"><i data-lucide="activity"></i> ${formatCauseName(j.root_cause)}</div>
+            allJunctions.forEach(j => {
+                const item = document.createElement('div');
+                item.className = `dispatch-card ${j.action_tier.toLowerCase()}`;
+                item.onclick = () => {
+                    map.flyTo([j.lat, j.lon], 16, { animate: true });
+                    markersGroup.clearLayers();
+                    L.marker([j.lat, j.lon]).addTo(markersGroup);
+                    // Open the humanized report panel
+                    openReport(j.junction_name, j.root_cause, j.eps, "Dispatch Tow Truck / Traffic Officer");
+                };
+                item.innerHTML = `
+                    <div style="font-weight:600;">${j.junction_name}</div>
+                    <div style="font-size:0.85rem; color:var(--text-secondary); margin-top:4px;">Score: ${j.eps.toFixed(1)} | Reason: ${(j.root_cause||'').replace(/_/g,' ')}</div>
                 `;
-                list.appendChild(card);
+                list.appendChild(item);
             });
-            lucide.createIcons();
+            renderHeatmap('impact');
         }
 
-        // Select a junction card & update UI details
-        function selectJunctionCard(junctionName) {
-            const j = allJunctions.find(item => item.junction_name === junctionName);
-            if (!j) return;
-            
-            selectedJunction = j;
-            
-            // Highlight list item
-            document.querySelectorAll('.dispatch-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            const cards = Array.from(document.querySelectorAll('.dispatch-card'));
-            const selectedCard = cards.find(card => card.querySelector('.card-title').innerText === junctionName);
-            if (selectedCard) selectedCard.classList.add('selected');
-
-            // Fly Map to location
-            if (j.lat && j.lon) {
-                map.flyTo([j.lat, j.lon], 15, { animate: true, duration: 1.5 });
-                
-                // Add marker
-                markersGroup.clearLayers();
-                const customIcon = L.divIcon({
-                    className: 'custom-div-icon',
-                    html: '<div class="pulse-marker"></div>',
-                    iconSize: [12, 12],
-                    iconAnchor: [6, 6]
-                });
-                
-                const marker = L.marker([j.lat, j.lon], { icon: customIcon }).addTo(markersGroup);
-                marker.bindPopup(`
-                    <div style="font-family: var(--font-body); color: var(--bg-base); padding: 0.25rem;">
-                        <h4 style="font-family: var(--font-display); font-size:0.8rem; margin-bottom:0.25rem;">${j.junction_name}</h4>
-                        <p style="font-size:0.75rem; margin-bottom:0.25rem;"><b>EPS Rank:</b> ${j.eps.toFixed(1)} (${j.action_tier})</p>
-                        <p style="font-size:0.75rem;"><b>Root Cause:</b> ${formatCauseName(j.root_cause)}</p>
-                    </div>
-                `).openPopup();
-            }
-
-            // Update details panel (Shelf Card 1)
-            document.getElementById('detailsTitle').innerText = j.junction_name;
-            document.getElementById('selectedJunctionCoords').innerText = j.lat && j.lon ? `${j.lat.toFixed(5)}, ${j.lon.toFixed(5)}` : "Coordinates unavailable";
-            document.getElementById('detailEPS').innerText = `${j.eps.toFixed(1)} (${j.action_tier})`;
-            document.getElementById('detailRootCause').innerText = formatCauseName(j.root_cause);
-            document.getElementById('detailViolations').innerText = j.violation_count.toLocaleString();
-            document.getElementById('detailCapacity').innerText = `${(j.mean_impact_score * 100).toFixed(1)}%`;
-        }
-
-        // Toggle Visualisation Heatmaps/Layers
-        function toggleMapLayer(layer) {
-            currentLayer = layer;
-            
-            // Toggle active classes on controls
-            document.getElementById('btnLayerImpact').classList.toggle('active', layer === 'impact');
-            document.getElementById('btnLayerDensity').classList.toggle('active', layer === 'density');
-            document.getElementById('btnLayerHotspots').classList.toggle('active', layer === 'hotspots');
-            document.getElementById('btnLayerYellow').classList.toggle('active', layer === 'yellow');
-
-            markersGroup.clearLayers();
-            if (heatmapLayer) {
-                map.removeLayer(heatmapLayer);
-                heatmapLayer = null;
-            }
-
-            if (layer === 'impact' || layer === 'density') {
-                renderHeatmap(layer);
-            } else if (layer === 'hotspots') {
-                renderHotspotsMarkers();
-            } else if (layer === 'yellow') {
-                renderYellowZoneMarkers();
-            }
-        }
-
-        // Fetch & render dynamic heatmaps
         async function renderHeatmap(layerName) {
+            markersGroup.clearLayers();
+            if (heatmapLayer) map.removeLayer(heatmapLayer);
+
             const res = await fetch(`${API_BASE}/api/heatmap-data?layer=${layerName}`);
             const data = await res.json();
-            
             const points = data.points.map(p => [p[0], p[1], p[2]]);
             
             heatmapLayer = L.heatLayer(points, {
-                radius: 20,
-                blur: 15,
-                maxZoom: 14,
-                gradient: layerName === 'impact' ? {
-                    0.2: '#007aff',
-                    0.5: '#ffd60a',
-                    0.8: '#ff9500',
-                    1.0: '#ff3b30'
-                } : {
-                    0.2: '#34c759',
-                    0.6: '#00f0ff',
-                    1.0: '#ff3b30'
-                }
+                radius: 20, blur: 15, maxZoom: 14,
+                gradient: { 0.4: 'blue', 0.6: 'cyan', 0.8: 'yellow', 1.0: 'red' }
             }).addTo(map);
         }
 
-        // Render DBSCAN hot spot clusters
-        async function renderHotspotsMarkers() {
-            const res = await fetch(`${API_BASE}/api/hotspots`);
-            const clusters = await res.json();
-
-            clusters.forEach(c => {
-                const circle = L.circleMarker([c.lat, c.lon], {
-                    radius: Math.max(8, c.violation_count / 10),
-                    fillColor: c.hotspot_tier === 'HIGH' ? varColor('critical') : varColor('high'),
-                    color: '#ffffff',
-                    weight: 1,
-                    opacity: 0.8,
-                    fillOpacity: 0.6
-                }).addTo(markersGroup);
-
-                circle.bindPopup(`
-                    <div style="font-family: var(--font-body); color: var(--bg-base);">
-                        <h4 style="font-family: var(--font-display); font-size: 0.8rem; margin-bottom: 0.25rem;">Hotspot Cluster #${c.cluster_id}</h4>
-                        <p style="font-size: 0.75rem;"><b>Tier:</b> ${c.hotspot_tier}</p>
-                        <p style="font-size: 0.75rem;"><b>Violations:</b> ${c.violation_count}</p>
-                        <p style="font-size: 0.75rem;"><b>Avg Impact:</b> ${(c.mean_impact_score * 100).toFixed(1)}%</p>
-                    </div>
-                `);
-            });
-        }
-
-        // Render Yellow Zone (Blind spot) markers
-        async function renderYellowZoneMarkers() {
-            const res = await fetch(`${API_BASE}/api/yellow-zones`);
-            const data = await res.json();
-
-            data.zones.forEach(z => {
-                const marker = L.circleMarker([z.lat, z.lon], {
-                    radius: 7,
-                    fillColor: varColor('yellow-zone'),
-                    color: '#000000',
-                    weight: 1.5,
-                    opacity: 1,
-                    fillOpacity: 0.85
-                }).addTo(markersGroup);
-
-                marker.bindPopup(`
-                    <div style="font-family: var(--font-body); color: var(--bg-base);">
-                        <h4 style="font-family: var(--font-display); font-size: 0.8rem; margin-bottom:0.25rem; color:#d4af37;">⚠️ Blind Spot</h4>
-                        <p style="font-size: 0.75rem;"><b>Junction:</b> ${z.junction_name}</p>
-                        <p style="font-size: 0.75rem;"><b>Impact:</b> ${(z.mean_impact_score * 100).toFixed(1)}%</p>
-                        <p style="font-size: 0.75rem;"><b>Violations:</b> ${z.violation_count} (Low density)</p>
-                    </div>
-                `);
-            });
-        }
-
-        // Load station list for temporal forecasts
         async function loadStationList() {
             const res = await fetch(`${API_BASE}/api/forecast/stations/list`);
             const stations = await res.json();
-            
             const select = document.getElementById('stationSelect');
             select.innerHTML = '';
-            
             stations.forEach(s => {
                 const opt = document.createElement('option');
-                opt.value = s;
-                opt.innerText = s;
+                opt.value = s; opt.innerText = s;
                 select.appendChild(opt);
             });
-            
-            if (stations.length > 0) {
-                loadStationForecast(stations[0]);
-            }
+            if (stations.length > 0) loadStationForecast(stations[0]);
         }
 
-        // Load Forecast Hourly Risk Profile
         async function loadStationForecast(stationName) {
             const res = await fetch(`${API_BASE}/api/forecast/${stationName}`);
             const rawForecast = await res.json();
             
-            // Average forecast trend hourly
             const hourlyMap = Array(24).fill(0);
             const hourCount = Array(24).fill(0);
             rawForecast.forEach(f => {
                 hourlyMap[f.hour] += f.forecast_intensity;
                 hourCount[f.hour]++;
             });
-            const hourlyAvg = hourlyMap.map((sum, idx) => round(sum / (hourCount[idx] || 1), 3));
-
-            const labels = Array.from({length: 24}, (_, i) => `${i}:00`);
+            const hourlyAvg = hourlyMap.map((sum, idx) => sum / (hourCount[idx] || 1));
+            const labels = Array.from({length: 24}, (_, i) => {
+                return i === 12 ? '12 PM' : i > 12 ? `${i-12} PM` : i === 0 ? '12 AM' : `${i} AM`;
+            });
 
             if (forecastChart) forecastChart.destroy();
-            
             const ctx = document.getElementById('forecastChart').getContext('2d');
             forecastChart = new Chart(ctx, {
                 type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Forecasted Risk Intensity',
-                        data: hourlyAvg,
-                        borderColor: '#00f0ff',
-                        backgroundColor: 'rgba(0, 240, 255, 0.05)',
-                        borderWidth: 2,
-                        tension: 0.4,
-                        fill: true,
-                        pointRadius: 2,
-                        pointHoverRadius: 5
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        x: {
-                            grid: { color: '#1b2030' },
-                            ticks: { color: '#6b7280', font: { size: 9 } }
-                        },
-                        y: {
-                            grid: { color: '#1b2030' },
-                            ticks: { color: '#6b7280', font: { size: 9 } },
-                            min: 0,
-                            max: 1
-                        }
-                    }
-                }
+                data: { labels: labels, datasets: [{
+                    label: 'Expected Traffic Jam Risk',
+                    data: hourlyAvg, borderColor: '#f97316',
+                    backgroundColor: 'rgba(249, 115, 22, 0.1)', fill: true, tension: 0.4
+                }]},
+                options: { responsive: true, plugins: { legend: { display: false } } }
             });
         }
 
-        // Load Root Causes Doughnut Chart
-        async function loadRootCauses() {
-            const res = await fetch(`${API_BASE}/api/root-causes`);
-            const data = await res.json();
-
-            // Aggregate counts
-            const counts = {};
-            data.forEach(item => {
-                const cause = formatCauseName(item.root_cause);
-                counts[cause] = (counts[cause] || 0) + item.violation_count;
-            });
-
-            const labels = Object.keys(counts);
-            const values = Object.values(counts);
-
-            if (causesChart) causesChart.destroy();
-
-            const ctx = document.getElementById('causesChart').getContext('2d');
-            causesChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: values,
-                        backgroundColor: [
-                            '#ff3b30', '#ff9500', '#ffd60a', '#34c759', '#007aff', '#af52de'
-                        ],
-                        borderWidth: 1,
-                        borderColor: '#121620'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    cutout: '65%'
-                }
-            });
-        }
-
-        // Load Realtime alerts
-        async function loadAlerts() {
-            const res = await fetch(`${API_BASE}/api/anomalies`);
-            const anomalies = await res.json();
-            
-            const list = document.getElementById('alertsList');
-            list.innerHTML = '';
-            
-            anomalies.forEach(a => {
-                const item = document.createElement('div');
-                item.className = 'alert-item';
-                item.innerHTML = `
-                    <div class="alert-header">
-                        <span>TRAFFIC ANOMALY IN PROGRESS</span>
-                        <span class="alert-time">${a.hour}:00</span>
-                    </div>
-                    <div class="alert-body">
-                        <b>${a.junction_name}</b> has spiked by <b>${a.spike_ratio.toFixed(1)}x</b> baseline density with <b>${a.violation_count}</b> violations currently active.
-                    </div>
-                    <button class="btn-dispatch" onclick="dispatchOfficer('${a.junction_name}')">
-                        <i data-lucide="navigation" style="width:12px; height:12px; display:inline; vertical-align:middle; margin-right:0.25rem;"></i> Dispatch Officer
-                    </button>
-                `;
-                list.appendChild(item);
-            });
-            lucide.createIcons();
-        }
-
-        // Dispatch simulations
-        function dispatchOfficer(junctionName) {
-            alert(`OFFICER DISPATCHED: Proactive team enroute to coordinate clearance at ${junctionName}.`);
-        }
-
-        // Load Blind spots list
         async function loadBlindSpots() {
             const res = await fetch(`${API_BASE}/api/yellow-zones`);
             const data = await res.json();
-            
             const list = document.getElementById('blindSpotsList');
             list.innerHTML = '';
             
             data.zones.forEach(z => {
                 const item = document.createElement('div');
-                item.className = 'blind-spot-item';
-                item.onclick = () => selectJunctionCard(z.junction_name);
+                item.className = 'dispatch-card medium';
+                item.onclick = () => {
+                    map.flyTo([z.lat, z.lon], 16);
+                    markersGroup.clearLayers();
+                    L.circleMarker([z.lat, z.lon], {radius:10, color:'#f59e0b', fillColor:'#f59e0b', fillOpacity:0.5}).addTo(markersGroup);
+                    openReport(z.junction_name, "Unenforced Congestion Zone", "High Priority Check", "Send physical patrol to verify if parking is blocking the road.");
+                };
                 item.innerHTML = `
-                    <div class="blind-spot-name">${z.junction_name}</div>
-                    <div class="blind-spot-val">${(z.mean_impact_score * 100).toFixed(0)}% Loss</div>
+                    <div style="font-weight:600;">${z.junction_name}</div>
+                    <div style="font-size:0.85rem; color:var(--text-secondary); margin-top:4px;">Lost Traffic Flow: ${(z.mean_impact_score * 100).toFixed(0)}%</div>
                 `;
                 list.appendChild(item);
             });
         }
 
-        // Helpers
-        function formatCauseName(cause) {
-            if (!cause) return "Unknown Cause";
-            return cause.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+        async function renderYellowZoneMarkers() {
+            if (heatmapLayer) map.removeLayer(heatmapLayer);
+            markersGroup.clearLayers();
+            const res = await fetch(`${API_BASE}/api/yellow-zones`);
+            const data = await res.json();
+            data.zones.forEach(z => {
+                L.circleMarker([z.lat, z.lon], { radius: 8, color: '#f59e0b', fillColor: '#f59e0b', fillOpacity: 0.7 }).addTo(markersGroup);
+            });
         }
 
-        function varColor(name) {
-            return getComputedStyle(document.documentElement).getPropertyValue(`--color-${name}`).trim();
-        }
+        async function loadRootCauses() {
+            const res = await fetch(`${API_BASE}/api/root-causes`);
+            const data = await res.json();
+            const counts = {};
+            data.forEach(item => {
+                let cause = (item.root_cause || "Unknown").replace(/_/g, ' ');
+                // Make humanized if possible
+                if(cause.includes("commercial loading")) cause = "Delivery Trucks";
+                else if(cause.includes("double parking")) cause = "Double Parking";
+                else if(cause.includes("street vendors")) cause = "Street Vendors";
+                counts[cause] = (counts[cause] || 0) + item.violation_count;
+            });
 
-        function round(num, decimals) {
-            const x = Math.pow(10, decimals);
-            return Math.round(num * x) / x;
+            if (causesChart) causesChart.destroy();
+            const ctx = document.getElementById('causesChart').getContext('2d');
+            causesChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(counts),
+                    datasets: [{ data: Object.values(counts), backgroundColor: ['#ef4444', '#f97316', '#f59e0b', '#10b981', '#3b82f6'] }]
+                },
+                options: { responsive: true, cutout: '60%', plugins: { legend: { position: 'right' } } }
+            });
         }
     </script>
 </body>

@@ -51,6 +51,22 @@ def get_dashboard():
         raise HTTPException(status_code=404, detail="index.html not found.")
     return FileResponse(index_path)
 
+@app.get("/bg.png")
+def get_bg():
+    """Serves the background image for the landing page."""
+    bg_path = os.path.join(BASE_DIR, "bg.png")
+    if not os.path.exists(bg_path):
+        raise HTTPException(status_code=404, detail="bg.png not found")
+    return FileResponse(bg_path)
+
+@app.get("/design.mp4")
+def get_video():
+    """Serves the 3D moving cars video for the landing page."""
+    vid_path = os.path.join(BASE_DIR, "design.mp4")
+    if not os.path.exists(vid_path):
+        raise HTTPException(status_code=404, detail="design.mp4 not found")
+    return FileResponse(vid_path, media_type="video/mp4")
+
 
 # Allow all origins so the HTML dashboard can call locally
 app.add_middleware(
