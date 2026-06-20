@@ -748,7 +748,7 @@
             });
         }
 
-        const API_BASE = "http://localhost:8000";
+        const API_BASE = window.location.origin.includes("file://") ? "http://localhost:8000" : "";
         let map;
         let heatmapLayer = null;
         let markersGroup = null;
