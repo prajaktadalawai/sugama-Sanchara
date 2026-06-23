@@ -717,7 +717,8 @@
                 <div class="panel-content">
                     <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.85rem;" data-i18n="forecastDesc">What to expect later today based on past data.</p>
                     <canvas id="forecastChart" style="max-height: 250px;"></canvas>
-                    <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 1rem;">Predicted violation intensity by hour for each police station zone. Peak bars indicate when and where to pre-position enforcement officers.</p>
+                    <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 0.75rem; margin-bottom: 0.5rem;">Predicted violation intensity by hour for each police station zone.</p>
+                    <div id="forecastInsights"></div>
                 </div>
             </div>
 
@@ -898,6 +899,8 @@
                     el.innerHTML = dict[currentLang][key];
                 }
             });
+            // Re-render lucide icons in case any were wiped
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
         const API_BASE = window.location.origin.includes("file://") ? "http://localhost:8000" : "";
@@ -1076,6 +1079,65 @@
             if (stations.length > 0) loadStationForecast(stations[0]);
         }
 
+        function generateForecastInsights(hourlyAvg, stationName) {
+            const fmtHour = (h) => {
+                if (h === 0) return '12 AM';
+                if (h === 12) return '12 PM';
+                return h > 12 ? `${h - 12} PM` : `${h} AM`;
+            };
+            const fmtPreHour = (h) => fmtHour((h - 1 + 24) % 24);
+
+            // Find primary peak
+            const maxVal = Math.max(...hourlyAvg);
+            const peakHour = hourlyAvg.indexOf(maxVal);
+
+            // Find secondary peak (at least 3 hours away from primary)
+            let secondPeakHour = -1, secondPeakVal = 0;
+            hourlyAvg.forEach((v, h) => {
+                if (Math.abs(h - peakHour) > 2 && v > secondPeakVal) {
+                    secondPeakVal = v; secondPeakHour = h;
+                }
+            });
+
+            // Find quietest 3-hour window
+            let quietStart = 0, quietSum = Infinity;
+            for (let i = 0; i <= 21; i++) {
+                const s = hourlyAvg[i] + hourlyAvg[i+1] + hourlyAvg[i+2];
+                if (s < quietSum) { quietSum = s; quietStart = i; }
+            }
+
+            // Characterize peak context
+            const peakContext = peakHour >= 7 && peakHour <= 10  ? 'morning commute rush' :
+                                peakHour >= 11 && peakHour <= 14 ? 'lunchtime commercial activity' :
+                                peakHour >= 17 && peakHour <= 21 ? 'evening rush hour' :
+                                peakHour >= 22 || peakHour <= 2  ? 'late-night nightlife traffic' :
+                                                                    'off-peak period';
+
+            const levelLabel = (v) => v > 0.35 ? 'very high' : v > 0.2 ? 'high' : v > 0.1 ? 'moderate' : 'low';
+
+            const insights = [];
+
+            insights.push(
+                `🔴 <strong>Peak Alert — Deploy by ${fmtPreHour(peakHour)}:</strong> Highest violation intensity at <strong>${fmtHour(peakHour)}</strong> (${levelLabel(maxVal)} risk) driven by ${peakContext}. Send officers to top-EPS junctions in ${stationName} zone <em>before</em> this hour to intercept violations proactively.`
+            );
+
+            if (secondPeakHour >= 0 && secondPeakVal > 0.1) {
+                insights.push(
+                    `🟠 <strong>Secondary Spike at ${fmtHour(secondPeakHour)}:</strong> A second violation cluster is predicted at ${fmtHour(secondPeakHour)} (${levelLabel(secondPeakVal)} risk). Plan a mid-day shift adjustment or officer rotation to cover this window.`
+                );
+            }
+
+            insights.push(
+                `🟢 <strong>Quiet Window ${fmtHour(quietStart)}–${fmtHour(quietStart + 2)}:</strong> Lowest risk period across the day. Use this window for tow truck redeployment, briefings, or recharging patrol vehicles without impacting enforcement coverage.`
+            );
+
+            insights.push(
+                `📋 <strong>Shift Recommendation:</strong> Prioritise ${peakHour >= 12 ? 'afternoon/evening' : 'morning'} officer deployment in ${stationName}. Focus tow-truck resources on EPS Critical junctions in this zone — clearing even one blocked carriageway during peak hours prevents cascading delays across the district.`
+            );
+
+            return insights;
+        }
+
         async function loadStationForecast(stationName) {
             const res = await fetch(`${API_BASE}/api/forecast/${stationName}`);
             const rawForecast = await res.json();
@@ -1102,6 +1164,13 @@
                 }]},
                 options: { responsive: true, plugins: { legend: { display: false } } }
             });
+
+            // Generate humanized insights below chart
+            const insightDiv = document.getElementById('forecastInsights');
+            const insights = generateForecastInsights(hourlyAvg, stationName);
+            insightDiv.innerHTML = insights
+                .map(txt => `<div class="finding-card" style="margin-bottom:0.6rem; border-left-color: #f97316;">${txt}</div>`)
+                .join('');
         }
 
         async function loadBlindSpots() {
