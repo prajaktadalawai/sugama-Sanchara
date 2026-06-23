@@ -450,9 +450,9 @@
             border-radius: 8px;
             padding: 0.75rem 1rem;
             margin-bottom: 0.6rem;
-            font-size: 0.82rem;
+            font-size: 0.875rem;
             color: var(--text-secondary);
-            line-height: 1.5;
+            line-height: 1.6;
         }
         .finding-card strong { color: var(--text-main); }
 
@@ -460,7 +460,7 @@
         .causes-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.78rem;
+            font-size: 0.84rem;
             margin-top: 1rem;
         }
         .causes-table th {
@@ -470,12 +470,12 @@
             padding: 0.5rem 0.6rem;
             font-weight: 600;
             text-transform: uppercase;
-            font-size: 0.7rem;
+            font-size: 0.76rem;
             letter-spacing: 0.4px;
             border-bottom: 2px solid var(--border-color);
         }
         .causes-table td {
-            padding: 0.5rem 0.6rem;
+            padding: 0.55rem 0.6rem;
             border-bottom: 1px solid var(--border-color);
             vertical-align: top;
             color: var(--text-main);
@@ -483,9 +483,9 @@
         .causes-table tr:hover td { background: var(--hover-bg); }
         .cause-pill {
             display: inline-block;
-            padding: 2px 7px;
+            padding: 2px 8px;
             border-radius: 10px;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 600;
         }
         .cause-STRUCTURAL_DESIGN { background:#fde8e8; color:#b91c1c; }
@@ -503,9 +503,9 @@
         .sidebar-about {
             padding: 0.9rem 1.5rem;
             border-top: 1px solid var(--border-color);
-            font-size: 0.72rem;
+            font-size: 0.8rem;
             color: var(--text-secondary);
-            line-height: 1.6;
+            line-height: 1.7;
         }
         .sidebar-about strong { color: var(--text-main); display: block; margin-bottom: 0.2rem; }
 
@@ -1188,7 +1188,7 @@
                     tr.innerHTML = `
                         <td style="font-weight:500; max-width:130px;">${name}</td>
                         <td><span class="cause-pill cause-${cause}">${info.label}</span></td>
-                        <td style="color:var(--text-secondary); font-size:0.72rem;">${info.action}</td>
+                        <td style="color:var(--text-secondary); font-size:0.82rem;">${info.action}</td>
                     `;
                     tbody.appendChild(tr);
                 });
