@@ -443,6 +443,95 @@
             color: var(--text-main);
         }
 
+        /* Key Findings */
+        .finding-card {
+            background: var(--hover-bg);
+            border-left: 3px solid var(--primary-accent);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.6rem;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .finding-card strong { color: var(--text-main); }
+
+        /* Root Causes Table */
+        .causes-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.78rem;
+            margin-top: 1rem;
+        }
+        .causes-table th {
+            background: var(--hover-bg);
+            color: var(--text-secondary);
+            text-align: left;
+            padding: 0.5rem 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.4px;
+            border-bottom: 2px solid var(--border-color);
+        }
+        .causes-table td {
+            padding: 0.5rem 0.6rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
+            color: var(--text-main);
+        }
+        .causes-table tr:hover td { background: var(--hover-bg); }
+        .cause-pill {
+            display: inline-block;
+            padding: 2px 7px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .cause-STRUCTURAL_DESIGN { background:#fde8e8; color:#b91c1c; }
+        .cause-NO_PARKING_ALTERNATIVE { background:#fff3cd; color:#92400e; }
+        .cause-ENFORCEMENT_BLIND_SPOT { background:#dbeafe; color:#1e40af; }
+        .cause-RUSH_HOUR_DEMAND_SPIKE { background:#d1fae5; color:#065f46; }
+        .cause-GENERAL_VIOLATION_ZONE { background:#ede9fe; color:#5b21b6; }
+        [data-theme="dark"] .cause-STRUCTURAL_DESIGN { background:#7f1d1d; color:#fca5a5; }
+        [data-theme="dark"] .cause-NO_PARKING_ALTERNATIVE { background:#78350f; color:#fcd34d; }
+        [data-theme="dark"] .cause-ENFORCEMENT_BLIND_SPOT { background:#1e3a8a; color:#93c5fd; }
+        [data-theme="dark"] .cause-RUSH_HOUR_DEMAND_SPIKE { background:#064e3b; color:#6ee7b7; }
+        [data-theme="dark"] .cause-GENERAL_VIOLATION_ZONE { background:#4c1d95; color:#c4b5fd; }
+
+        /* About footer in sidebar */
+        .sidebar-about {
+            padding: 0.9rem 1.5rem;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        .sidebar-about strong { color: var(--text-main); display: block; margin-bottom: 0.2rem; }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            #dashboard-view { flex-direction: column; }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                flex-wrap: wrap;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+            .sidebar-header { flex: 0 0 auto; padding: 0.75rem 1rem; font-size: 0.95rem; border-bottom: none; }
+            .sidebar-nav { flex: 1; flex-direction: row; padding: 0.5rem; gap: 0.25rem; overflow-x: auto; }
+            .nav-item { padding: 0.5rem 0.75rem; font-size: 0.8rem; white-space: nowrap; }
+            .profile-section, .sidebar-about { display: none; }
+            .main-content { height: calc(100vh - 120px); }
+            .overlay-panel { width: calc(100% - 40px); left: 20px; right: 20px; top: 10px; bottom: 10px; }
+            .map-controls { top: 10px; right: 10px; }
+            .login-nav { padding: 1.5rem 1.5rem; }
+            .login-content { padding-left: 5%; padding-right: 5%; justify-content: center; }
+            .login-card { width: 100%; max-width: 380px; padding: 2rem; }
+        }
+
     </style>
 </head>
 <body data-theme="light">
@@ -512,6 +601,14 @@
                 </div>
             </div>
 
+            <!-- About Competition Entry -->
+            <div class="sidebar-about">
+                <strong data-i18n="aboutTitle">About This Entry</strong>
+                <span data-i18n="aboutTheme">Theme: Smart City Traffic Management</span><br>
+                <span data-i18n="aboutDataset">Dataset: 298K Bengaluru Traffic Police records (Jan–May)</span><br>
+                <span data-i18n="aboutTeam">Team: Prajakta Dalawai — Flipkart GRiD 6.0</span>
+            </div>
+
             <!-- Profile Section -->
             <div class="profile-section">
                 <div class="avatar">U</div>
@@ -576,11 +673,17 @@
                         <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;" data-i18n="psDesc2">
                             We use AI to automatically spot illegal parking and calculate exactly how much it's slowing down traffic. Instead of guessing, police can use this dashboard to send towing trucks to the exact "Hidden Violations" that are hurting the city the most.
                         </p>
-                        
-                        <h3 style="font-size: 1rem; margin-top: 1rem; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 600;">Mathematical Rigour & Generalization</h3>
-                        <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
-                            To prove our AI works in the real world, we evaluated it strictly. We trained our spatial hotspot and anomaly models on historical data from <strong>January to April</strong>, and then tested it blindly on <strong>May's data</strong>. The evaluation proved our predictions highly correlate with unseen future congestion—meaning our model genuinely generalizes to solve tomorrow's traffic jams.
-                        </p>
+
+                        <h3 style="font-size: 1rem; margin-top: 1.25rem; margin-bottom: 0.6rem; color: var(--text-main); font-weight: 600;" data-i18n="findingsTitle">Key Findings</h3>
+                        <div class="finding-card" data-i18n="finding1">
+                            <strong>14 Hidden Violation junctions</strong> identified receiving zero targeted enforcement — the biggest opportunity for impact.
+                        </div>
+                        <div class="finding-card" data-i18n="finding2">
+                            <strong>Scooters = 56% of violations, only 12% of congestion impact.</strong> Our EPS score reweights enforcement away from scooters toward LGVs and trucks that actually block carriageways.
+                        </div>
+                        <div class="finding-card" data-i18n="finding3">
+                            <strong>Trained Jan–Apr, validated blind on May:</strong> EPS predictions strongly correlate with unseen future congestion — proving the model generalizes to real-world deployment.
+                        </div>
                     </div>
                 </div>
             </div>
@@ -639,8 +742,23 @@
                     <button class="icon-btn circle panel-close-btn" onclick="closeAllPanels()"><i data-lucide="x" style="width:14px;"></i></button>
                 </div>
                 <div class="panel-content">
-                    <canvas id="causesChart" style="max-height: 250px;"></canvas>
-                    <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 1rem;">Systemic reason why each junction keeps generating violations. Structural Design and No Parking Alternative zones require policy intervention, not just patrol.</p>
+                    <canvas id="causesChart" style="max-height: 220px;"></canvas>
+                    <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 0.75rem; margin-bottom: 0.75rem;" data-i18n="causesDesc">Systemic reason why each junction keeps generating violations. Structural Design and No Parking Alternative zones require policy intervention, not just patrol.</p>
+                    <h4 style="font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.5rem;" data-i18n="causesTableTitle">Junction → Root Cause → Action</h4>
+                    <div style="overflow-x: auto;">
+                        <table class="causes-table" id="causesTable">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="colJunction">Junction</th>
+                                    <th data-i18n="colCause">Root Cause</th>
+                                    <th data-i18n="colAction">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="causesTableBody">
+                                <tr><td colspan="3" style="text-align:center; color:var(--text-secondary); padding:1rem;">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -699,9 +817,22 @@
                 psDesc1: "People parking illegally near shops and metro stations causes massive traffic jams. Right now, police only react when a jam happens, and they don't know exactly which parked cars are causing the worst bottlenecks.",
                 psTitle2: "How Sugama Sanchara Helps",
                 psDesc2: "We use AI to automatically spot illegal parking and calculate exactly how much it's slowing down traffic. Instead of guessing, police can use this dashboard to send towing trucks to the exact 'Hidden Violations' that are hurting the city the most.",
+                findingsTitle: "Key Findings",
+                finding1: "14 Hidden Violation junctions identified receiving zero targeted enforcement — the biggest opportunity for impact.",
+                finding2: "Scooters = 56% of violations, only 12% of congestion impact. Our EPS score reweights enforcement away from scooters toward LGVs and trucks that actually block carriageways.",
+                finding3: "Trained Jan–Apr, validated blind on May: EPS predictions strongly correlate with unseen future congestion — proving the model generalizes to real-world deployment.",
                 hotspotDesc: "Areas needing immediate help right now.",
                 forecastDesc: "What to expect later today based on past data.",
                 blindspotDesc: "Areas that are completely jammed, but barely anyone is getting ticketed. Cops need to check here.",
+                causesDesc: "Systemic reason why each junction keeps generating violations. Structural Design and No Parking Alternative zones require policy intervention, not just patrol.",
+                causesTableTitle: "Junction → Root Cause → Action",
+                colJunction: "Junction",
+                colCause: "Root Cause",
+                colAction: "Action",
+                aboutTitle: "About This Entry",
+                aboutTheme: "Theme: Smart City Traffic Management",
+                aboutDataset: "Dataset: 298K Bengaluru Traffic Police records (Jan–May)",
+                aboutTeam: "Team: Prajakta Dalawai — Flipkart GRiD 6.0",
                 reportTitle: "Junction Report",
                 reportCause: "Why is it congested?",
                 reportImpact: "Traffic Impact (Score)",
@@ -727,9 +858,22 @@
                 psDesc1: "ಅಂಗಡಿಗಳು ಮತ್ತು ಮೆಟ್ರೋ ನಿಲ್ದಾಣಗಳ ಬಳಿ ಅಕ್ರಮವಾಗಿ ಪಾರ್ಕಿಂಗ್ ಮಾಡುವುದರಿಂದ ಭಾರೀ ಟ್ರಾಫಿಕ್ ಜಾಮ್ ಆಗುತ್ತದೆ. ಪ್ರಸ್ತುತ, ಜಾಮ್ ಆದಾಗ ಮಾತ್ರ ಪೊಲೀಸರು ಪ್ರತಿಕ್ರಿಯಿಸುತ್ತಾರೆ, ಮತ್ತು ಯಾವ ಕಾರುಗಳು ಹೆಚ್ಚು ತೊಂದರೆ ನೀಡುತ್ತಿವೆ ಎಂಬುದು ಅವರಿಗೆ ನಿಖರವಾಗಿ ತಿಳಿದಿಲ್ಲ.",
                 psTitle2: "ಸುಗಮ ಸಂಚಾರ ಹೇಗೆ ಸಹಾಯ ಮಾಡುತ್ತದೆ",
                 psDesc2: "ಅಕ್ರಮ ಪಾರ್ಕಿಂಗ್ ಅನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಗುರುತಿಸಲು ಮತ್ತು ಅದು ಟ್ರಾಫಿಕ್ ಅನ್ನು ಎಷ್ಟು ನಿಧಾನಗೊಳಿಸುತ್ತಿದೆ ಎಂಬುದನ್ನು ಲೆಕ್ಕಹಾಕಲು ನಾವು AI ಅನ್ನು ಬಳಸುತ್ತೇವೆ. ಊಹಿಸುವ ಬದಲು, ಪೊಲೀಸರು ಈ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ಬಳಸಿ ನಗರಕ್ಕೆ ಹೆಚ್ಚು ತೊಂದರೆ ನೀಡುತ್ತಿರುವ ನಿಖರವಾದ 'ಗುಪ್ತ ಉಲ್ಲಂಘನೆ'ಗಳಿಗೆ ಟೋಯಿಂಗ್ ಟ್ರಕ್‌ಗಳನ್ನು ಕಳುಹಿಸಬಹುದು.",
+                findingsTitle: "ಪ್ರಮುಖ ಶೋಧನೆಗಳು",
+                finding1: "ಶೂನ್ಯ ಜಾರಿ ಹೊಂದಿರುವ 14 ಗುಪ್ತ ಉಲ್ಲಂಘನೆ ಜಂಕ್ಷನ್‌ಗಳನ್ನು ಗುರುತಿಸಲಾಗಿದೆ — ಪ್ರಭಾವಕ್ಕೆ ದೊಡ್ಡ ಅವಕಾಶ.",
+                finding2: "ಸ್ಕೂಟರ್ = ಉಲ್ಲಂಘನೆಗಳಲ್ಲಿ 56%, ಆದರೆ ದಟ್ಟಣೆ ಪ್ರಭಾವ ಕೇವಲ 12%. ನಮ್ಮ EPS ಸ್ಕೋರ್ ಸ್ಕೂಟರ್‌ಗಳಿಂದ LGV ಮತ್ತು ಟ್ರಕ್‌ಗಳತ್ತ ಜಾರಿಯನ್ನು ಮರುಹಂಚಿಕೆ ಮಾಡುತ್ತದೆ.",
+                finding3: "ಜನ–ಏಪ್ರಿಲ್ ತರಬೇತಿ, ಮೇ ಮೇಲೆ ಅಂಧ ಮೌಲ್ಯಮಾಪನ: EPS ಮುನ್ಸೂಚನೆಗಳು ಅಜ್ಞಾತ ದಟ್ಟಣೆಯೊಂದಿಗೆ ಬಲವಾಗಿ ಸಂಬಂಧ ಹೊಂದಿವೆ.",
                 hotspotDesc: "ಈಗ ತಕ್ಷಣ ಸಹಾಯದ ಅಗತ್ಯವಿರುವ ಪ್ರದೇಶಗಳು.",
                 forecastDesc: "ಹಿಂದಿನ ಡೇಟಾದ ಆಧಾರದ ಮೇಲೆ ಇಂದು ನಂತರ ಏನನ್ನು ನಿರೀಕ್ಷಿಸಬಹುದು.",
                 blindspotDesc: "ಸಂಪೂರ್ಣವಾಗಿ ಜಾಮ್ ಆಗಿರುವ ಪ್ರದೇಶಗಳು, ಆದರೆ ಯಾರಿಗೂ ದಂಡ ವಿಧಿಸುತ್ತಿಲ್ಲ. ಪೊಲೀಸರು ಇಲ್ಲಿ ಪರಿಶೀಲಿಸಬೇಕು.",
+                causesDesc: "ಪ್ರತಿ ಜಂಕ್ಷನ್ ಉಲ್ಲಂಘನೆಗಳನ್ನು ಉತ್ಪಾದಿಸುವ ವ್ಯವಸ್ಥಾತ್ಮಕ ಕಾರಣ.",
+                causesTableTitle: "ಜಂಕ್ಷನ್ → ಮೂಲ ಕಾರಣ → ಕ್ರಮ",
+                colJunction: "ಜಂಕ್ಷನ್",
+                colCause: "ಮೂಲ ಕಾರಣ",
+                colAction: "ಕ್ರಮ",
+                aboutTitle: "ಈ ಪ್ರವೇಶಿಕೆ ಬಗ್ಗೆ",
+                aboutTheme: "ವಿಷಯ: ಸ್ಮಾರ್ಟ್ ಸಿಟಿ ಸಂಚಾರ ನಿರ್ವಹಣೆ",
+                aboutDataset: "ಡೇಟಾ: 2.98 ಲಕ್ಷ ಬೆಂಗಳೂರು ದಾಖಲೆಗಳು (ಜನ–ಮೇ)",
+                aboutTeam: "ತಂಡ: ಪ್ರಾಜಕ್ತಾ ದಲಾವಾಯಿ — Flipkart GRiD 6.0",
                 reportTitle: "ಜಂಕ್ಷನ್ ವರದಿ",
                 reportCause: "ಏಕೆ ದಟ್ಟಣೆ ಇದೆ?",
                 reportImpact: "ಟ್ರಾಫಿಕ್ ಪರಿಣಾಮ (ಸ್ಕೋರ್)",
@@ -993,17 +1137,24 @@
             });
         }
 
+        const CAUSE_LABELS = {
+            'STRUCTURAL_DESIGN':       { label: 'Poor Road Design',           action: 'Infrastructure redesign needed' },
+            'NO_PARKING_ALTERNATIVE':  { label: 'No Parking Alternative',      action: 'Policy intervention required' },
+            'ENFORCEMENT_BLIND_SPOT':  { label: 'Enforcement Blind Spot',      action: 'Increase patrol frequency' },
+            'RUSH_HOUR_DEMAND_SPIKE':  { label: 'Demand-Supply Mismatch',      action: 'Pre-position officers at peak hours' },
+            'GENERAL_VIOLATION_ZONE':  { label: 'Repeat Commercial Offenders', action: 'Issue repeat-offender notices' },
+        };
+
         async function loadRootCauses() {
             const res = await fetch(`${API_BASE}/api/root-causes`);
             const data = await res.json();
+
+            // --- Doughnut chart ---
             const counts = {};
             data.forEach(item => {
-                let cause = (item.root_cause || "Unknown").replace(/_/g, ' ');
-                // Make humanized if possible
-                if(cause.includes("commercial loading")) cause = "Delivery Trucks";
-                else if(cause.includes("double parking")) cause = "Double Parking";
-                else if(cause.includes("street vendors")) cause = "Street Vendors";
-                counts[cause] = (counts[cause] || 0) + item.violation_count;
+                const info = CAUSE_LABELS[item.root_cause] || { label: (item.root_cause || 'Unknown').replace(/_/g,' ') };
+                const label = info.label;
+                counts[label] = (counts[label] || 0) + item.violation_count;
             });
 
             if (causesChart) causesChart.destroy();
@@ -1014,7 +1165,33 @@
                     labels: Object.keys(counts),
                     datasets: [{ data: Object.values(counts), backgroundColor: ['#ef4444', '#f97316', '#f59e0b', '#10b981', '#3b82f6'] }]
                 },
-                options: { responsive: true, cutout: '60%', plugins: { legend: { position: 'right' } } }
+                options: { responsive: true, cutout: '60%', plugins: { legend: { position: 'right', labels: { font: { size: 10 } } } } }
+            });
+
+            // --- Junction table (top 3 per cause) ---
+            const byGroup = {};
+            data.forEach(item => {
+                const key = item.root_cause || 'GENERAL_VIOLATION_ZONE';
+                if (!byGroup[key]) byGroup[key] = [];
+                byGroup[key].push(item);
+            });
+
+            const tbody = document.getElementById('causesTableBody');
+            tbody.innerHTML = '';
+            Object.entries(byGroup).forEach(([cause, items]) => {
+                const info = CAUSE_LABELS[cause] || { label: cause.replace(/_/g,' '), action: 'Review required' };
+                // Sort by violation count desc, take top 3
+                items.sort((a,b) => b.violation_count - a.violation_count);
+                items.slice(0, 3).forEach(item => {
+                    const tr = document.createElement('tr');
+                    const name = (item.junction_name || 'Unknown').replace(/^BTP\d+ - /, '');
+                    tr.innerHTML = `
+                        <td style="font-weight:500; max-width:130px;">${name}</td>
+                        <td><span class="cause-pill cause-${cause}">${info.label}</span></td>
+                        <td style="color:var(--text-secondary); font-size:0.72rem;">${info.action}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
             });
         }
     </script>
