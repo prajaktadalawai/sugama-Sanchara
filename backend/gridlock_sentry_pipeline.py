@@ -277,7 +277,8 @@ def police_station_zone_summary(df: pd.DataFrame) -> pd.DataFrame:
 if __name__ == "__main__":
     import os
 
-    INPUT_CSV = "d:/gridlock/jan to may police violation_anonymized791b166.csv"
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    INPUT_CSV = os.path.join(BASE_DIR, "jan to may police violation_anonymized791b166.csv")
     if not os.path.exists(INPUT_CSV):
         print("ERROR: CSV not found.")
     else:
@@ -296,6 +297,7 @@ if __name__ == "__main__":
         print(capacity_loss.head(10).to_string(index=False))
 
         # Export junction-level aggregates for dashboard
-        out_path = "d:/gridlock/junction_scores.csv"
+        out_path = os.path.join(BASE_DIR, "junction_scores.csv")
         capacity_loss.to_csv(out_path, index=False)
         print(f"\nJunction scores exported to: {out_path}")
+
