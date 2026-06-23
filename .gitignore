@@ -1,2 +1,8 @@
 *.csv
 __pycache__/
+*.db
+FlipkartGrid_ParkingIntelligence_Report.docx
+doc_tables.txt
+gridlock_evaluation_report.txt
+design.mp4
+index_backup.html
