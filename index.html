@@ -818,9 +818,9 @@
                 psTitle2: "How Sugama Sanchara Helps",
                 psDesc2: "We use AI to automatically spot illegal parking and calculate exactly how much it's slowing down traffic. Instead of guessing, police can use this dashboard to send towing trucks to the exact 'Hidden Violations' that are hurting the city the most.",
                 findingsTitle: "Key Findings",
-                finding1: "14 Hidden Violation junctions identified receiving zero targeted enforcement — the biggest opportunity for impact.",
-                finding2: "Scooters = 56% of violations, only 12% of congestion impact. Our EPS score reweights enforcement away from scooters toward LGVs and trucks that actually block carriageways.",
-                finding3: "Trained Jan–Apr, validated blind on May: EPS predictions strongly correlate with unseen future congestion — proving the model generalizes to real-world deployment.",
+                finding1: "<strong>14 Hidden Violation junctions</strong> identified receiving zero targeted enforcement — the biggest opportunity for impact.",
+                finding2: "<strong>Scooters = 56% of violations, only 12% of congestion impact.</strong> Our EPS score reweights enforcement away from scooters toward LGVs and trucks that actually block carriageways.",
+                finding3: "<strong>Trained Jan–Apr, validated blind on May:</strong> EPS predictions strongly correlate with unseen future congestion — proving the model generalizes to real-world deployment.",
                 hotspotDesc: "Areas needing immediate help right now.",
                 forecastDesc: "What to expect later today based on past data.",
                 blindspotDesc: "Areas that are completely jammed, but barely anyone is getting ticketed. Cops need to check here.",
@@ -890,12 +890,12 @@
             document.getElementById('loginLangText').innerText = currentLang === 'en' ? 'ಕನ್ನಡ' : 'English';
             document.getElementById('dashLangText').innerText = currentLang === 'en' ? 'ಕನ್ನಡ' : 'English';
             
-            // Apply translations
+            // Apply translations (innerHTML to preserve any markup inside elements)
             const elements = document.querySelectorAll('[data-i18n]');
             elements.forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (dict[currentLang][key]) {
-                    el.innerText = dict[currentLang][key];
+                if (dict[currentLang][key] !== undefined) {
+                    el.innerHTML = dict[currentLang][key];
                 }
             });
         }
